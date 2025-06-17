@@ -519,11 +519,27 @@ chore: 构建过程或辅助工具的变动
 
 <div align="center">
 
-**MIT License**
+**CC BY-NC-SA 4.0 License**
+
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 Copyright (c) 2025 微信文件传输助手
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software.
+本项目采用 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可证。
+
+### 🚫 **严格禁止商业用途**
+
+- ✅ **允许**: 个人学习、研究、非营利使用
+- ✅ **允许**: 修改和分发（需保持相同许可证）
+- ✅ **允许**: 署名使用
+- ❌ **禁止**: 任何形式的商业用途
+- ❌ **禁止**: 商业销售或盈利
+
+### 📋 使用条件
+
+1. **署名** - 必须给出适当的署名，提供指向许可证的链接
+2. **非商业性使用** - 不得将本作品用于商业目的
+3. **相同方式共享** - 如果您再混合、转换或者基于本作品进行创作，您必须基于与原先许可协议相同的许可协议分发您贡献的作品
 
 ---
 
