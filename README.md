@@ -116,12 +116,133 @@ npx wrangler d1 create wxchat
 # 5️⃣ 创建 R2 存储桶
 npx wrangler r2 bucket create wxchat
 
-# 6️⃣ 初始化数据库
+# 6️⃣ 初始化数据库（二选一）
+# 方法1：命令行初始化
 npx wrangler d1 execute wxchat --file=./database/schema.sql
+
+# 方法2：控制台初始化（推荐）
+# 见下方"数据库初始化"部分
 
 # 7️⃣ 部署应用
 npm run deploy
 ```
+
+### 🗄️ 数据库初始化
+
+如果遇到 HTTP 500 错误，通常是数据库未正确初始化导致的。请使用以下方法之一初始化数据库：
+
+<details>
+<summary><strong>📋 方法1：Cloudflare D1 控制台初始化（推荐）</strong></summary>
+
+1. 打开 [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. 进入 **Workers & Pages** → **D1 SQL Database**
+3. 选择你的 `wxchat` 数据库
+4. 点击 **控制台** 标签页
+5. 将以下完整SQL代码复制粘贴到查询框中并执行：
+
+```sql
+-- 微信文件传输助手数据库完整初始化脚本
+-- 直接在Cloudflare D1控制台执行
+
+-- 删除已存在的表（如果需要重新初始化）
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS files;
+DROP TABLE IF EXISTS devices;
+
+-- 创建消息表
+CREATE TABLE messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL CHECK (type IN ('text', 'file')),
+    content TEXT,
+    file_id INTEGER,
+    device_id TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (file_id) REFERENCES files(id)
+);
+
+-- 创建文件表
+CREATE TABLE files (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    original_name TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    file_size INTEGER NOT NULL,
+    mime_type TEXT NOT NULL,
+    r2_key TEXT NOT NULL UNIQUE,
+    upload_device_id TEXT NOT NULL,
+    download_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 创建设备表
+CREATE TABLE devices (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    last_active DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 创建索引以提高查询性能
+CREATE INDEX idx_messages_timestamp ON messages(timestamp DESC);
+CREATE INDEX idx_messages_device_id ON messages(device_id);
+CREATE INDEX idx_messages_type ON messages(type);
+CREATE INDEX idx_files_r2_key ON files(r2_key);
+CREATE INDEX idx_files_upload_device ON files(upload_device_id);
+CREATE INDEX idx_devices_last_active ON devices(last_active DESC);
+
+-- 插入默认设备
+INSERT INTO devices (id, name) VALUES
+('web-default', 'Web浏览器'),
+('mobile-default', '移动设备');
+
+-- 验证表创建成功
+SELECT 'Tables created successfully!' as status;
+SELECT name FROM sqlite_master WHERE type='table';
+```
+
+执行成功后，你应该看到：
+- ✅ `Tables created successfully!` 成功消息
+- ✅ 显示所有创建的表名列表：`devices`, `files`, `messages`
+
+</details>
+
+<details>
+<summary><strong>💻 方法2：命令行初始化</strong></summary>
+
+在项目根目录执行：
+
+```bash
+npx wrangler d1 execute wxchat --file=./database/schema.sql
+```
+
+</details>
+
+<details>
+<summary><strong>🔍 验证数据库状态</strong></summary>
+
+初始化完成后，可以通过以下方式验证：
+
+1. **控制台验证**：在D1控制台执行
+```sql
+SELECT name FROM sqlite_master WHERE type='table';
+```
+
+2. **健康检查API**：访问你的应用URL + `/api/health`
+```
+https://your-app.workers.dev/api/health
+```
+
+3. **检查表结构**：
+```sql
+.schema messages
+.schema files
+.schema devices
+```
+
+</details>
 
 ### 🎯 配置说明
 
@@ -507,6 +628,89 @@ test: 测试相关
 chore: 构建过程或辅助工具的变动
 ```
 
+### 🔧 故障排除
+
+<details>
+<summary><strong>❌ HTTP 500 错误 - 数据库未初始化</strong></summary>
+
+**症状**: 访问应用时出现 `HTTP 500: Internal Server Error`
+
+**原因**: 数据库表未创建或初始化失败
+
+**解决方案**:
+1. 检查数据库状态：访问 `https://your-app.workers.dev/api/health`
+2. 如果显示表不存在，请按照上方"数据库初始化"部分重新初始化
+3. 确认 `wrangler.toml` 中的数据库ID正确
+
+</details>
+
+<details>
+<summary><strong>🔗 数据库连接失败</strong></summary>
+
+**症状**: API返回 `数据库配置错误：DB绑定未找到`
+
+**原因**: D1数据库绑定配置错误
+
+**解决方案**:
+1. 检查 `wrangler.toml` 中的数据库配置：
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "wxchat"
+database_id = "your-database-id"
+```
+2. 确认数据库ID与实际创建的数据库匹配
+3. 重新部署应用：`npm run deploy`
+
+</details>
+
+<details>
+<summary><strong>📁 文件上传失败</strong></summary>
+
+**症状**: 文件上传时出现错误
+
+**原因**: R2存储桶配置问题或权限不足
+
+**解决方案**:
+1. 检查 `wrangler.toml` 中的R2配置：
+```toml
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "wxchat"
+```
+2. 确认R2存储桶已创建：`npx wrangler r2 bucket list`
+3. 检查文件大小是否超过限制（默认10MB）
+
+</details>
+
+<details>
+<summary><strong>🌐 CORS 跨域问题</strong></summary>
+
+**症状**: 浏览器控制台显示CORS错误
+
+**原因**: 跨域请求被阻止
+
+**解决方案**:
+1. 确认应用已正确部署到Cloudflare Workers
+2. 检查是否使用了正确的域名访问
+3. 清除浏览器缓存并重试
+
+</details>
+
+<details>
+<summary><strong>📱 移动端显示异常</strong></summary>
+
+**症状**: 移动设备上界面显示不正常
+
+**原因**: 缓存或兼容性问题
+
+**解决方案**:
+1. 清除浏览器缓存
+2. 尝试使用无痕模式访问
+3. 确认使用现代浏览器（Chrome、Safari、Firefox等）
+
+</details>
+
 ### 🐛 问题反馈
 
 遇到问题？请通过以下方式反馈：
@@ -514,6 +718,12 @@ chore: 构建过程或辅助工具的变动
 - 🐛 [提交 Issue](https://github.com/xiyewuqiu/wxchat/issues)
 - 💬 [讨论区](https://github.com/xiyewuqiu/wxchat/discussions)
 - 📧 邮件联系: xiyewuqiu@gmail.com
+
+**反馈时请提供**:
+- 🌐 访问的URL
+- 📱 使用的设备和浏览器
+- 🔍 具体的错误信息
+- 📋 重现步骤
 
 ## 📄 许可证
 
