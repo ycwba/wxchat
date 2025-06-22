@@ -8,12 +8,15 @@ const API = {
                 'Content-Type': 'application/json',
             },
         };
-        
+
+        // 添加认证头
+        const authHeaders = Auth ? Auth.addAuthHeader(defaultOptions.headers) : defaultOptions.headers;
+
         const config = {
             ...defaultOptions,
             ...options,
             headers: {
-                ...defaultOptions.headers,
+                ...authHeaders,
                 ...options.headers,
             },
         };
@@ -138,14 +141,14 @@ const API = {
     uploadWithProgress(url, formData, onProgress) {
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            
+
             xhr.upload.addEventListener('progress', (event) => {
                 if (event.lengthComputable) {
                     const percentComplete = (event.loaded / event.total) * 100;
                     onProgress(percentComplete);
                 }
             });
-            
+
             xhr.addEventListener('load', () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
@@ -158,12 +161,18 @@ const API = {
                     reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
                 }
             });
-            
+
             xhr.addEventListener('error', () => {
                 reject(new Error('网络错误'));
             });
-            
+
             xhr.open('POST', url);
+
+            // 添加认证头（必须在open之后设置）
+            if (Auth && Auth.getToken()) {
+                xhr.setRequestHeader('Authorization', `Bearer ${Auth.getToken()}`);
+            }
+
             xhr.send(formData);
         });
     },
