@@ -4,6 +4,9 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
+    /* iOS Safari 视口修复 */
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: -webkit-fill-available;
     max-width: 800px;
     margin: 0 auto;
     background-color: white;
@@ -14,6 +17,10 @@
     border-radius: 16px;
     overflow: hidden;
     backdrop-filter: blur(20px);
+    /* iOS 安全区域支持 */
+    padding-top: var(--safe-area-inset-top);
+    padding-left: var(--safe-area-inset-left);
+    padding-right: var(--safe-area-inset-right);
 }
 
 
@@ -62,7 +69,7 @@
     background: rgba(7, 193, 96, 0.5);
 }
 
-/* 输入区域 - 微信移动端风格 */
+/* 输入区域 - 微信移动端风格 + iOS 修复 */
 .input-container {
     border-top: 1px solid #e7e7e7;
     padding: 8px 12px;
@@ -73,6 +80,13 @@
     min-height: 56px;
     display: flex;
     align-items: center;
+    /* iOS Safari 底部固定修复 */
+    padding-bottom: calc(8px + var(--safe-area-inset-bottom));
+    /* 确保在iOS上始终可见 */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    /* iOS虚拟键盘适配 */
+    transition: transform 0.3s ease;
 }
 
 
