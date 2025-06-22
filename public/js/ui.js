@@ -263,22 +263,24 @@ const UI = {
 
         let imagePreview = '';
         if (isImage) {
-            // 使用异步加载的图片预览
-            const imageId = `img-${message.r2_key}`;
-            imagePreview = `<div class="image-preview" id="preview-${message.r2_key}">
-                <div class="image-loading" id="loading-${message.r2_key}">
+            // 创建安全的ID（移除特殊字符）
+            const safeId = this.createSafeId(message.r2_key);
+            const imageId = `img-${safeId}`;
+
+            imagePreview = `<div class="image-preview" id="preview-${safeId}">
+                <div class="image-loading" id="loading-${safeId}">
                     <div class="loading-spinner">⏳</div>
                     <span>加载图片中...</span>
                 </div>
                 <img id="${imageId}" alt="${this.escapeHtml(message.original_name)}" style="display: none;" />
-                <div class="image-error" id="error-${message.r2_key}" style="display: none;">
+                <div class="image-error" id="error-${safeId}" style="display: none;">
                     <span>🖼️ 图片加载失败</span>
-                    <button onclick="UI.retryLoadImage('${message.r2_key}')" class="retry-btn">重试</button>
+                    <button onclick="UI.retryLoadImage('${message.r2_key}', '${safeId}')" class="retry-btn">重试</button>
                 </div>
             </div>`;
 
             // 异步加载图片
-            this.loadImageAsync(message.r2_key);
+            this.loadImageAsync(message.r2_key, safeId);
         }
 
         return `<div class="message-content"><div class="file-message"><div class="file-info"><div class="file-icon">${fileIcon}</div><div class="file-details"><div class="file-name">${this.escapeHtml(message.original_name)}</div><div class="file-size">${fileSize}</div></div><button class="download-btn" onclick="API.downloadFile('${message.r2_key}', '${this.escapeHtml(message.original_name)}')">⬇️ 下载</button></div>${imagePreview}</div></div><div class="message-meta"><span>${deviceName}</span><span class="message-time">${time}</span></div>`;
@@ -292,22 +294,24 @@ const UI = {
 
         let imagePreview = '';
         if (isImage) {
-            // 使用异步加载的图片预览
-            const imageId = `img-${message.r2_key}`;
-            imagePreview = `<div class="image-preview" id="preview-${message.r2_key}">
-                <div class="image-loading" id="loading-${message.r2_key}">
+            // 创建安全的ID（移除特殊字符）
+            const safeId = this.createSafeId(message.r2_key);
+            const imageId = `img-${safeId}`;
+
+            imagePreview = `<div class="image-preview" id="preview-${safeId}">
+                <div class="image-loading" id="loading-${safeId}">
                     <div class="loading-spinner">⏳</div>
                     <span>加载图片中...</span>
                 </div>
                 <img id="${imageId}" alt="${this.escapeHtml(message.original_name)}" style="display: none;" />
-                <div class="image-error" id="error-${message.r2_key}" style="display: none;">
+                <div class="image-error" id="error-${safeId}" style="display: none;">
                     <span>🖼️ 图片加载失败</span>
-                    <button onclick="UI.retryLoadImage('${message.r2_key}')" class="retry-btn">重试</button>
+                    <button onclick="UI.retryLoadImage('${message.r2_key}', '${safeId}')" class="retry-btn">重试</button>
                 </div>
             </div>`;
 
             // 异步加载图片
-            this.loadImageAsync(message.r2_key);
+            this.loadImageAsync(message.r2_key, safeId);
         }
 
         return `<div class="message ${isOwn ? 'own' : 'other'} fade-in"><div class="message-content"><div class="file-message"><div class="file-info"><div class="file-icon">${fileIcon}</div><div class="file-details"><div class="file-name">${this.escapeHtml(message.original_name)}</div><div class="file-size">${fileSize}</div></div><button class="download-btn" onclick="API.downloadFile('${message.r2_key}', '${this.escapeHtml(message.original_name)}')">⬇️ 下载</button></div>${imagePreview}</div></div><div class="message-meta"><span>${deviceName}</span><span class="message-time">${time}</span></div></div>`;
@@ -625,16 +629,31 @@ const UI = {
         messageElement.appendChild(toggleButton);
     },
 
+    // 创建安全的ID（移除特殊字符）
+    createSafeId(str) {
+        return str.replace(/[^a-zA-Z0-9-_]/g, '');
+    },
+
     // 异步加载图片
-    async loadImageAsync(r2Key) {
+    async loadImageAsync(r2Key, safeId) {
         try {
+            // 如果没有提供safeId，则生成一个
+            if (!safeId) {
+                safeId = this.createSafeId(r2Key);
+            }
+
             // 获取相关元素
-            const loadingElement = document.getElementById(`loading-${r2Key}`);
-            const imageElement = document.getElementById(`img-${r2Key}`);
-            const errorElement = document.getElementById(`error-${r2Key}`);
+            const loadingElement = document.getElementById(`loading-${safeId}`);
+            const imageElement = document.getElementById(`img-${safeId}`);
+            const errorElement = document.getElementById(`error-${safeId}`);
 
             if (!loadingElement || !imageElement || !errorElement) {
-                console.warn('图片元素未找到:', r2Key);
+                console.warn('图片元素未找到:', { r2Key, safeId });
+                console.warn('查找的元素ID:', {
+                    loading: `loading-${safeId}`,
+                    image: `img-${safeId}`,
+                    error: `error-${safeId}`
+                });
                 return;
             }
 
@@ -663,9 +682,10 @@ const UI = {
             console.error('图片加载失败:', error);
 
             // 显示错误状态
-            const loadingElement = document.getElementById(`loading-${r2Key}`);
-            const imageElement = document.getElementById(`img-${r2Key}`);
-            const errorElement = document.getElementById(`error-${r2Key}`);
+            const safeIdToUse = safeId || this.createSafeId(r2Key);
+            const loadingElement = document.getElementById(`loading-${safeIdToUse}`);
+            const imageElement = document.getElementById(`img-${safeIdToUse}`);
+            const errorElement = document.getElementById(`error-${safeIdToUse}`);
 
             if (loadingElement) loadingElement.style.display = 'none';
             if (imageElement) imageElement.style.display = 'none';
@@ -674,13 +694,15 @@ const UI = {
     },
 
     // 重试加载图片
-    async retryLoadImage(r2Key) {
+    async retryLoadImage(r2Key, safeId) {
         console.log('🔄 重试加载图片:', r2Key);
 
         // 清除可能存在的缓存
-        API.revokeImageBlobUrl(r2Key);
+        if (typeof API !== 'undefined' && API.revokeImageBlobUrl) {
+            API.revokeImageBlobUrl(r2Key);
+        }
 
         // 重新加载
-        await this.loadImageAsync(r2Key);
+        await this.loadImageAsync(r2Key, safeId);
     }
 };
