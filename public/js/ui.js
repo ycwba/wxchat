@@ -152,6 +152,17 @@ const UI = {
             messageContainer.appendChild(fragment);
         }
 
+        // 处理需要加载图片的消息
+        messages.forEach(message => {
+            if (message._needsImageLoad) {
+                const { r2Key, safeId } = message._needsImageLoad;
+                // 使用setTimeout确保DOM完全插入后再加载图片
+                setTimeout(() => {
+                    this.loadImageAsync(r2Key, safeId);
+                }, 10);
+            }
+        });
+
         // 批量添加淡入动画
         if (newElements.length > 0) {
             requestAnimationFrame(() => {
@@ -279,8 +290,8 @@ const UI = {
                 </div>
             </div>`;
 
-            // 异步加载图片
-            this.loadImageAsync(message.r2_key, safeId);
+            // 标记需要异步加载图片（在DOM插入后执行）
+            message._needsImageLoad = { r2Key: message.r2_key, safeId: safeId };
         }
 
         return `<div class="message-content"><div class="file-message"><div class="file-info"><div class="file-icon">${fileIcon}</div><div class="file-details"><div class="file-name">${this.escapeHtml(message.original_name)}</div><div class="file-size">${fileSize}</div></div><button class="download-btn" onclick="API.downloadFile('${message.r2_key}', '${this.escapeHtml(message.original_name)}')">⬇️ 下载</button></div>${imagePreview}</div></div><div class="message-meta"><span>${deviceName}</span><span class="message-time">${time}</span></div>`;
@@ -310,8 +321,8 @@ const UI = {
                 </div>
             </div>`;
 
-            // 异步加载图片
-            this.loadImageAsync(message.r2_key, safeId);
+            // 标记需要异步加载图片（在DOM插入后执行）
+            message._needsImageLoad = { r2Key: message.r2_key, safeId: safeId };
         }
 
         return `<div class="message ${isOwn ? 'own' : 'other'} fade-in"><div class="message-content"><div class="file-message"><div class="file-info"><div class="file-icon">${fileIcon}</div><div class="file-details"><div class="file-name">${this.escapeHtml(message.original_name)}</div><div class="file-size">${fileSize}</div></div><button class="download-btn" onclick="API.downloadFile('${message.r2_key}', '${this.escapeHtml(message.original_name)}')">⬇️ 下载</button></div>${imagePreview}</div></div><div class="message-meta"><span>${deviceName}</span><span class="message-time">${time}</span></div></div>`;
@@ -339,6 +350,15 @@ const UI = {
         // 添加到末尾
         this.elements.messageList.appendChild(messageElement);
         this.messageCache.set(message.id, messageElement);
+
+        // 检查是否需要加载图片（DOM插入后）
+        if (message._needsImageLoad) {
+            const { r2Key, safeId } = message._needsImageLoad;
+            // 使用setTimeout确保DOM完全插入后再加载图片
+            setTimeout(() => {
+                this.loadImageAsync(r2Key, safeId);
+            }, 10);
+        }
 
         // 添加淡入动画
         requestAnimationFrame(() => {
