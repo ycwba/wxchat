@@ -117,22 +117,7 @@
       ]
     }
   ],
-  "screenshots": [
-    {
-      "src": "./icons/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "微信文件传输助手桌面版界面"
-    },
-    {
-      "src": "./icons/screenshot-narrow.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "微信文件传输助手移动版界面"
-    }
-  ],
+
   "prefer_related_applications": false,
   "edge_side_panel": {
     "preferred_width": 400

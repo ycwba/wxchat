@@ -121,9 +121,13 @@ class PWAManager {
     setupEventListeners() {
         // 监听安装提示事件
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
+            // 保存事件，但不阻止默认行为（让浏览器显示原生提示）
             this.deferredPrompt = e;
+
+            // 可选：显示我们的自定义安装按钮
             this.showInstallButton();
+
+            console.log('📱 PWA安装提示可用');
         });
         
         // 监听应用安装事件

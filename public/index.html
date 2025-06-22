@@ -111,9 +111,13 @@
     <script>
         // 仅在开发环境加载测试脚本
         if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            const script = document.createElement('script');
-            script.src = './js/pwa-test.js';
-            document.head.appendChild(script);
+            const testScript = document.createElement('script');
+            testScript.src = './js/pwa-test.js';
+            document.head.appendChild(testScript);
+
+            const debugScript = document.createElement('script');
+            debugScript.src = './js/pwa-debug.js';
+            document.head.appendChild(debugScript);
         }
     </script>
 </body>

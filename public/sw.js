@@ -27,8 +27,10 @@ const STATIC_ASSETS = [
   '/js/messageHandler.js',
   '/js/pwa.js',
   '/js/app.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icons/android/android-launchericon-192-192.png',
+  '/icons/android/android-launchericon-512-512.png',
+  '/icons/ios/32.png',
+  '/icons/ios/180.png',
   'https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js'
 ];
 
@@ -52,9 +54,21 @@ self.addEventListener('install', event => {
   event.waitUntil(
     Promise.all([
       // 缓存静态资源
-      caches.open(STATIC_CACHE_NAME).then(cache => {
+      caches.open(STATIC_CACHE_NAME).then(async cache => {
         console.log('📦 缓存静态资源...');
-        return cache.addAll(STATIC_ASSETS);
+
+        // 逐个添加资源，跳过失败的
+        const cachePromises = STATIC_ASSETS.map(async url => {
+          try {
+            await cache.add(url);
+            console.log(`✅ 缓存成功: ${url}`);
+          } catch (error) {
+            console.warn(`⚠️ 缓存失败: ${url}`, error.message);
+          }
+        });
+
+        await Promise.all(cachePromises);
+        console.log('📦 静态资源缓存完成');
       }),
       // 跳过等待，立即激活
       self.skipWaiting()
