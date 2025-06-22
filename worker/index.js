@@ -262,7 +262,7 @@ api.post('/clear-all', async (c) => {
         await R2.delete(file.r2_key)
         deletedFilesCount++
       } catch (error) {
-        console.error(`删除R2文件失败: ${file.r2_key}`, error)
+        // 静默处理R2删除失败
       }
     }
 
@@ -331,7 +331,6 @@ api.get('/events', async (c) => {
       try {
         sendSSE('ping', 'heartbeat')
       } catch (error) {
-        console.error('发送心跳失败:', error)
         clearInterval(heartbeat)
       }
     }, 30000)
@@ -341,7 +340,6 @@ api.get('/events', async (c) => {
       try {
         const { DB } = c.env
         if (!DB) {
-          console.error('数据库未绑定')
           return
         }
 
@@ -356,7 +354,7 @@ api.get('/events', async (c) => {
           sendSSE(JSON.stringify({ newMessages: result.count }), 'message')
         }
       } catch (error) {
-        console.error('SSE消息检查失败:', error)
+        // 静默处理SSE消息检查失败
       }
     }, 5000)
 
@@ -367,7 +365,7 @@ api.get('/events', async (c) => {
       try {
         writer.close()
       } catch (error) {
-        console.error('关闭writer失败:', error)
+        // 静默处理writer关闭失败
       }
     }
 
@@ -383,7 +381,6 @@ api.get('/events', async (c) => {
     return new Response(readable, { headers })
 
   } catch (error) {
-    console.error('SSE连接创建失败:', error)
     return c.json({
       success: false,
       error: `SSE连接失败: ${error.message}`
@@ -442,7 +439,6 @@ api.get('/poll', async (c) => {
     })
 
   } catch (error) {
-    console.error('长轮询失败:', error)
     return c.json({
       success: false,
       error: error.message
