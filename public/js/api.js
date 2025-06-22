@@ -208,7 +208,6 @@ const API = {
             // 清理URL对象
             window.URL.revokeObjectURL(downloadUrl);
 
-            console.log(`✅ 文件下载成功: ${fileName}`);
             return true;
         } catch (error) {
             console.error('文件下载失败:', error);
@@ -286,7 +285,6 @@ const API = {
             window.URL.revokeObjectURL(blobUrl);
         }
         this.imageBlobCache.clear();
-        console.log('🗑️ 图片blob缓存已清理');
     },
 
     // 移除特定图片的blob URL

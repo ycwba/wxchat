@@ -135,8 +135,6 @@ class PWAManager {
 
             // 可选：显示我们的自定义安装按钮
             this.showInstallButton();
-
-            console.log('📱 PWA安装提示可用');
         });
         
         // 监听应用安装事件

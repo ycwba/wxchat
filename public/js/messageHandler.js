@@ -155,6 +155,12 @@ const MessageHandler = {
             return;
         }
 
+        // 检查是否为PWA指令
+        if (this.isPWACommand(content)) {
+            await this.handlePWACommand();
+            return;
+        }
+
         try {
             UI.setSendButtonState(true, true);
             UI.setConnectionStatus('connecting');
@@ -193,6 +199,12 @@ const MessageHandler = {
         const trimmedContent = content.trim().toLowerCase();
         const logoutCommands = ['/logout', '/登出', 'logout', '登出'];
         return logoutCommands.includes(trimmedContent);
+    },
+
+    // 检查是否为PWA指令
+    isPWACommand(content) {
+        const trimmedContent = content.trim().toLowerCase();
+        return CONFIG.PWA.TRIGGER_COMMANDS.includes(trimmedContent);
     },
 
     // 处理清理指令
@@ -268,6 +280,79 @@ const MessageHandler = {
         } catch (error) {
             console.error('登出失败:', error);
             UI.showError('登出失败，请重试');
+        }
+    },
+
+    // 处理PWA指令
+    async handlePWACommand() {
+        // 清空输入框
+        UI.clearInput();
+
+        try {
+            // 检查PWA支持和状态
+            if (typeof PWA === 'undefined') {
+                UI.showError('PWA功能不可用');
+                return;
+            }
+
+            const pwaStatus = await PWA.getStatus();
+
+            // 检查是否已安装
+            if (pwaStatus.installed) {
+                UI.showSuccess(`📱 应用已安装\n\n✅ 当前运行在独立模式\n🚀 享受原生应用体验！`);
+                return;
+            }
+
+            // 检查是否可以安装
+            if (pwaStatus.installPromptAvailable) {
+                // 构建安装好处列表
+                const benefits = CONFIG.PWA.INSTALL_BENEFITS.map(benefit => `• ${benefit}`).join('\n');
+
+                // 显示安装确认
+                const userConfirmed = confirm(`🚀 检测到可以安装微信文件传输助手到桌面！\n\n📱 安装后可以：\n${benefits}\n\n确定要安装吗？`);
+
+                if (userConfirmed) {
+                    // 触发安装
+                    await PWA.promptInstall();
+                } else {
+                    UI.showSuccess('安装已取消\n\n💡 提示：随时输入 /pwa 可以重新安装');
+                }
+            } else {
+                // 显示PWA状态和安装指南
+                let statusMessage = '📱 PWA应用状态\n\n';
+
+                if (pwaStatus.serviceWorkerRegistered) {
+                    statusMessage += '✅ Service Worker: 已注册\n';
+                } else {
+                    statusMessage += '❌ Service Worker: 未注册\n';
+                }
+
+                if (pwaStatus.manifestAccessible) {
+                    statusMessage += '✅ 应用清单: 可访问\n';
+                } else {
+                    statusMessage += '❌ 应用清单: 不可访问\n';
+                }
+
+                statusMessage += `💾 缓存数量: ${pwaStatus.cacheCount || 0}\n\n`;
+
+                // 添加安装指南
+                statusMessage += '📖 手动安装指南：\n\n';
+                statusMessage += '🤖 Android (Chrome):\n';
+                statusMessage += '• 地址栏右侧点击安装图标\n';
+                statusMessage += '• 或菜单 → "安装应用"\n\n';
+                statusMessage += '🍎 iPhone (Safari):\n';
+                statusMessage += '• 点击分享按钮 📤\n';
+                statusMessage += '• 选择"添加到主屏幕"\n\n';
+                statusMessage += '💻 桌面 (Chrome/Edge):\n';
+                statusMessage += '• 地址栏右侧安装图标\n';
+                statusMessage += '• 或菜单 → "安装wxchat"';
+
+                UI.showSuccess(statusMessage);
+            }
+
+        } catch (error) {
+            console.error('PWA指令处理失败:', error);
+            UI.showError('PWA功能检查失败，请重试');
         }
     },
     

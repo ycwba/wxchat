@@ -61,7 +61,6 @@ self.addEventListener('install', event => {
         const cachePromises = STATIC_ASSETS.map(async url => {
           try {
             await cache.add(url);
-            console.log(`✅ 缓存成功: ${url}`);
           } catch (error) {
             console.warn(`⚠️ 缓存失败: ${url}`, error.message);
           }

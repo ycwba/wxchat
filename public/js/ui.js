@@ -668,12 +668,7 @@ const UI = {
             const errorElement = document.getElementById(`error-${safeId}`);
 
             if (!loadingElement || !imageElement || !errorElement) {
-                console.warn('图片元素未找到:', { r2Key, safeId });
-                console.warn('查找的元素ID:', {
-                    loading: `loading-${safeId}`,
-                    image: `img-${safeId}`,
-                    error: `error-${safeId}`
-                });
+                console.warn('图片元素未找到:', r2Key);
                 return;
             }
 
@@ -696,8 +691,6 @@ const UI = {
             loadingElement.style.display = 'none';
             imageElement.style.display = 'block';
 
-            console.log(`✅ 图片加载成功: ${r2Key}`);
-
         } catch (error) {
             console.error('图片加载失败:', error);
 
@@ -715,8 +708,6 @@ const UI = {
 
     // 重试加载图片
     async retryLoadImage(r2Key, safeId) {
-        console.log('🔄 重试加载图片:', r2Key);
-
         // 清除可能存在的缓存
         if (typeof API !== 'undefined' && API.revokeImageBlobUrl) {
             API.revokeImageBlobUrl(r2Key);
