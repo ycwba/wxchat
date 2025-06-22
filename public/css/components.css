@@ -57,15 +57,15 @@
     backdrop-filter: blur(10px);
 }
 
-/* 普通文本消息保持紧凑 */
+/* 普通文本消息保持紧凑 - 高优先级 */
 .message-content .text-message:not(.markdown-rendered) {
-    padding: 0;
-    margin: 0;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* Markdown消息可以有额外的内边距 */
+/* Markdown消息可以有额外的内边距 - 高优先级 */
 .message-content .text-message.markdown-rendered {
-    padding: 0.25rem 24px 0.25rem 0; /* 右边留出按钮空间 */
+    padding: 0.25rem 24px 0.25rem 0 !important; /* 右边留出按钮空间 */
 }
 
 .message-content:hover {
