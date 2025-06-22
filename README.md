@@ -250,9 +250,28 @@ npx wrangler d1 execute wxchat --file=./database/schema.sql
 # 方法2：控制台初始化（推荐）
 # 见下方"数据库初始化"部分
 
-# 7️⃣ 部署应用
+# 7️⃣ 配置访问密码（重要！）
+# 见下方"密码配置"部分
+
+# 8️⃣ 部署应用
 npm run deploy
 ```
+
+### 🔐 密码配置
+
+**重要：** 应用包含访问鉴权功能，需要配置密码才能正常使用。
+
+📖 **详细配置指南**: [PASSWORD_CONFIG.md](./PASSWORD_CONFIG.md)
+
+**快速配置**：
+1. 进入 [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. **Workers & Pages** → **wxchat** → **设置** → **变量和机密**
+3. 添加环境变量：
+   ```bash
+   ACCESS_PASSWORD = "你的密码"
+   JWT_SECRET = "32位以上随机字符串"
+   ```
+4. 保存后即可使用！
 
 ### 🗄️ 数据库初始化
 

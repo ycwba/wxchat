@@ -65,12 +65,17 @@ const authMiddleware = async (c, next) => {
   // 跳过登录和静态资源
   const path = c.req.path
   if (path.startsWith('/api/auth/') || path.startsWith('/login.html') ||
-      path.includes('.css') || path.includes('.js') || path.includes('.ico')) {
+      path.includes('.css') || path.includes('.js') || path.includes('.ico') ||
+      path.includes('favicon')) {
     return next()
   }
 
   const authHeader = c.req.header('Authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // 对于API请求返回401，对于页面请求重定向到登录页
+    if (path.startsWith('/api/')) {
+      return c.json({ success: false, message: '未授权访问' }, 401)
+    }
     return c.redirect('/login.html')
   }
 
@@ -78,6 +83,10 @@ const authMiddleware = async (c, next) => {
   const payload = await AuthUtils.verifyToken(token, c.env.JWT_SECRET)
 
   if (!payload) {
+    // 对于API请求返回401，对于页面请求重定向到登录页
+    if (path.startsWith('/api/')) {
+      return c.json({ success: false, message: 'Token无效或已过期' }, 401)
+    }
     return c.redirect('/login.html')
   }
 
