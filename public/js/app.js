@@ -220,6 +220,14 @@ window.addEventListener('unhandledrejection', (event) => {
     Utils.showNotification('网络请求失败，请检查网络连接', 'error');
 });
 
+// 页面卸载时清理资源
+window.addEventListener('beforeunload', () => {
+    // 清理图片blob URL缓存，避免内存泄漏
+    if (typeof API !== 'undefined' && API.clearImageBlobCache) {
+        API.clearImageBlobCache();
+    }
+});
+
 // 导出到全局作用域（用于调试）
 window.WeChatApp = app;
 window.CONFIG = CONFIG;

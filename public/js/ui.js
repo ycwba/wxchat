@@ -263,7 +263,22 @@ const UI = {
 
         let imagePreview = '';
         if (isImage) {
-            imagePreview = `<div class="image-preview"><img src="/api/files/download/${message.r2_key}" alt="${this.escapeHtml(message.original_name)}" loading="lazy"></div>`;
+            // 使用异步加载的图片预览
+            const imageId = `img-${message.r2_key}`;
+            imagePreview = `<div class="image-preview" id="preview-${message.r2_key}">
+                <div class="image-loading" id="loading-${message.r2_key}">
+                    <div class="loading-spinner">⏳</div>
+                    <span>加载图片中...</span>
+                </div>
+                <img id="${imageId}" alt="${this.escapeHtml(message.original_name)}" style="display: none;" />
+                <div class="image-error" id="error-${message.r2_key}" style="display: none;">
+                    <span>🖼️ 图片加载失败</span>
+                    <button onclick="UI.retryLoadImage('${message.r2_key}')" class="retry-btn">重试</button>
+                </div>
+            </div>`;
+
+            // 异步加载图片
+            this.loadImageAsync(message.r2_key);
         }
 
         return `<div class="message-content"><div class="file-message"><div class="file-info"><div class="file-icon">${fileIcon}</div><div class="file-details"><div class="file-name">${this.escapeHtml(message.original_name)}</div><div class="file-size">${fileSize}</div></div><button class="download-btn" onclick="API.downloadFile('${message.r2_key}', '${this.escapeHtml(message.original_name)}')">⬇️ 下载</button></div>${imagePreview}</div></div><div class="message-meta"><span>${deviceName}</span><span class="message-time">${time}</span></div>`;
@@ -277,7 +292,22 @@ const UI = {
 
         let imagePreview = '';
         if (isImage) {
-            imagePreview = `<div class="image-preview"><img src="/api/files/download/${message.r2_key}" alt="${this.escapeHtml(message.original_name)}" loading="lazy"></div>`;
+            // 使用异步加载的图片预览
+            const imageId = `img-${message.r2_key}`;
+            imagePreview = `<div class="image-preview" id="preview-${message.r2_key}">
+                <div class="image-loading" id="loading-${message.r2_key}">
+                    <div class="loading-spinner">⏳</div>
+                    <span>加载图片中...</span>
+                </div>
+                <img id="${imageId}" alt="${this.escapeHtml(message.original_name)}" style="display: none;" />
+                <div class="image-error" id="error-${message.r2_key}" style="display: none;">
+                    <span>🖼️ 图片加载失败</span>
+                    <button onclick="UI.retryLoadImage('${message.r2_key}')" class="retry-btn">重试</button>
+                </div>
+            </div>`;
+
+            // 异步加载图片
+            this.loadImageAsync(message.r2_key);
         }
 
         return `<div class="message ${isOwn ? 'own' : 'other'} fade-in"><div class="message-content"><div class="file-message"><div class="file-info"><div class="file-icon">${fileIcon}</div><div class="file-details"><div class="file-name">${this.escapeHtml(message.original_name)}</div><div class="file-size">${fileSize}</div></div><button class="download-btn" onclick="API.downloadFile('${message.r2_key}', '${this.escapeHtml(message.original_name)}')">⬇️ 下载</button></div>${imagePreview}</div></div><div class="message-meta"><span>${deviceName}</span><span class="message-time">${time}</span></div></div>`;
@@ -593,5 +623,64 @@ const UI = {
         toggleButton.title = '切换源码/渲染视图';
         toggleButton.textContent = '📝';
         messageElement.appendChild(toggleButton);
+    },
+
+    // 异步加载图片
+    async loadImageAsync(r2Key) {
+        try {
+            // 获取相关元素
+            const loadingElement = document.getElementById(`loading-${r2Key}`);
+            const imageElement = document.getElementById(`img-${r2Key}`);
+            const errorElement = document.getElementById(`error-${r2Key}`);
+
+            if (!loadingElement || !imageElement || !errorElement) {
+                console.warn('图片元素未找到:', r2Key);
+                return;
+            }
+
+            // 显示加载状态
+            loadingElement.style.display = 'flex';
+            imageElement.style.display = 'none';
+            errorElement.style.display = 'none';
+
+            // 获取图片blob URL
+            const blobUrl = await API.getImageBlobUrl(r2Key);
+
+            // 设置图片源并等待加载完成
+            await new Promise((resolve, reject) => {
+                imageElement.onload = resolve;
+                imageElement.onerror = reject;
+                imageElement.src = blobUrl;
+            });
+
+            // 显示图片，隐藏加载状态
+            loadingElement.style.display = 'none';
+            imageElement.style.display = 'block';
+
+            console.log(`✅ 图片加载成功: ${r2Key}`);
+
+        } catch (error) {
+            console.error('图片加载失败:', error);
+
+            // 显示错误状态
+            const loadingElement = document.getElementById(`loading-${r2Key}`);
+            const imageElement = document.getElementById(`img-${r2Key}`);
+            const errorElement = document.getElementById(`error-${r2Key}`);
+
+            if (loadingElement) loadingElement.style.display = 'none';
+            if (imageElement) imageElement.style.display = 'none';
+            if (errorElement) errorElement.style.display = 'flex';
+        }
+    },
+
+    // 重试加载图片
+    async retryLoadImage(r2Key) {
+        console.log('🔄 重试加载图片:', r2Key);
+
+        // 清除可能存在的缓存
+        API.revokeImageBlobUrl(r2Key);
+
+        // 重新加载
+        await this.loadImageAsync(r2Key);
     }
 };

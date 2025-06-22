@@ -396,14 +396,75 @@
 /* 图片预览 */
 .image-preview {
     margin-top: 0.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    max-width: 300px;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .image-preview img {
+    width: 100%;
+    height: auto;
     display: block;
-    max-width: 100%;
     max-height: 200px;
-    border-radius: 8px;
     object-fit: cover;
+    transition: transform 0.2s ease;
+    border-radius: 8px;
+}
+
+.image-preview img:hover {
+    transform: scale(1.02);
+    cursor: pointer;
+}
+
+/* 图片加载状态 */
+.image-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.image-loading .loading-spinner {
+    font-size: 20px;
+    margin-bottom: 8px;
+    animation: spin 1s linear infinite;
+}
+
+/* 图片加载错误状态 */
+.image-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #999;
+    font-size: 14px;
+}
+
+.image-error .retry-btn {
+    margin-top: 8px;
+    background: #07c160;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s ease;
+}
+
+.image-error .retry-btn:hover {
+    background: #06a552;
 }
 
 /* 文件上传组件 - 简化版 */

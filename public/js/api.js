@@ -178,22 +178,123 @@ const API = {
     },
     
     // 下载文件
-    downloadFile(r2Key, fileName) {
+    async downloadFile(r2Key, fileName) {
         try {
             const url = `${CONFIG.API.ENDPOINTS.FILES_DOWNLOAD}/${r2Key}`;
+
+            // 使用fetch获取文件，这样可以携带认证头
+            const response = await this.request(url, {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error(`下载失败: ${response.status} ${response.statusText}`);
+            }
+
+            // 获取文件blob
+            const blob = await response.blob();
+
+            // 创建下载链接
+            const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.href = url;
+            link.href = downloadUrl;
             link.download = fileName;
             link.style.display = 'none';
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
+            // 清理URL对象
+            window.URL.revokeObjectURL(downloadUrl);
+
+            console.log(`✅ 文件下载成功: ${fileName}`);
             return true;
         } catch (error) {
             console.error('文件下载失败:', error);
+
+            // 显示用户友好的错误信息
+            if (error.message.includes('401')) {
+                Utils.showNotification('下载失败：请重新登录', 'error');
+                // 可以选择自动跳转到登录页
+                if (typeof Auth !== 'undefined' && Auth.logout) {
+                    setTimeout(() => {
+                        Auth.logout();
+                        window.location.href = '/login.html';
+                    }, 2000);
+                }
+            } else {
+                Utils.showNotification(`下载失败：${error.message}`, 'error');
+            }
+
             return false;
+        }
+    },
+
+    // 检查认证状态
+    async checkAuthStatus() {
+        try {
+            const response = await this.get('/auth/verify');
+            return response.valid === true;
+        } catch (error) {
+            console.warn('认证状态检查失败:', error);
+            return false;
+        }
+    },
+
+    // 图片blob URL缓存
+    imageBlobCache: new Map(),
+
+    // 获取图片blob URL（用于预览）
+    async getImageBlobUrl(r2Key) {
+        // 检查缓存
+        if (this.imageBlobCache.has(r2Key)) {
+            return this.imageBlobCache.get(r2Key);
+        }
+
+        try {
+            const url = `${CONFIG.API.ENDPOINTS.FILES_DOWNLOAD}/${r2Key}`;
+
+            // 使用fetch获取图片，携带认证头
+            const response = await this.request(url, {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error(`获取图片失败: ${response.status}`);
+            }
+
+            // 获取图片blob
+            const blob = await response.blob();
+
+            // 创建blob URL
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            // 缓存blob URL
+            this.imageBlobCache.set(r2Key, blobUrl);
+
+            return blobUrl;
+        } catch (error) {
+            console.error('获取图片blob URL失败:', error);
+            throw error;
+        }
+    },
+
+    // 清理图片blob URL缓存
+    clearImageBlobCache() {
+        for (const [key, blobUrl] of this.imageBlobCache) {
+            window.URL.revokeObjectURL(blobUrl);
+        }
+        this.imageBlobCache.clear();
+        console.log('🗑️ 图片blob缓存已清理');
+    },
+
+    // 移除特定图片的blob URL
+    revokeImageBlobUrl(r2Key) {
+        if (this.imageBlobCache.has(r2Key)) {
+            const blobUrl = this.imageBlobCache.get(r2Key);
+            window.URL.revokeObjectURL(blobUrl);
+            this.imageBlobCache.delete(r2Key);
         }
     },
     
