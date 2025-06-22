@@ -40,7 +40,7 @@ class WeChatApp {
             this.showInitError(error);
         }
     }
-    
+
     // iOS Safari 视口修复
     initIOSViewportFix() {
         // 检测是否为iOS设备
@@ -65,7 +65,7 @@ class WeChatApp {
             // 监听虚拟键盘事件
             this.handleIOSKeyboard();
         }
-    },
+    }
 
     // 处理iOS虚拟键盘
     handleIOSKeyboard() {
@@ -91,7 +91,7 @@ class WeChatApp {
         };
 
         window.addEventListener('resize', Utils.debounce(handleViewportChange, 100));
-    },
+    }
 
     // 检查浏览器兼容性
     checkBrowserCompatibility() {
@@ -119,7 +119,7 @@ class WeChatApp {
 
         // 浏览器兼容性检查通过
     }
-    
+
     // 显示欢迎消息
     showWelcomeMessage() {
         const isFirstTime = !localStorage.getItem('hasVisited');
@@ -132,7 +132,7 @@ class WeChatApp {
             }, 1000);
         }
     }
-    
+
     // 显示初始化错误
     showInitError(error) {
         const errorMessage = `
@@ -155,7 +155,7 @@ class WeChatApp {
         
         document.body.innerHTML = errorMessage;
     }
-    
+
     // 获取应用状态
     getStatus() {
         return {
@@ -165,13 +165,13 @@ class WeChatApp {
             timestamp: new Date().toISOString()
         };
     }
-    
+
     // 重启应用
     restart() {
         console.log('🔄 重启应用...');
         location.reload();
     }
-    
+
     // 清理应用数据
     clearData() {
         if (confirm('确定要清除所有本地数据吗？这将删除设备ID等信息。')) {
