@@ -4,10 +4,12 @@ class RealtimeManager {
         this.eventSource = null;
         this.isConnected = false;
         this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 5;
+        this.maxReconnectAttempts = 3; // 减少SSE重试次数
         this.reconnectDelay = 1000; // 1秒
         this.deviceId = null;
         this.listeners = new Map();
+        this.longPollingActive = false;
+        this.longPollingTimeout = null;
     }
 
     // 初始化实时连接
@@ -80,6 +82,7 @@ class RealtimeManager {
             this.eventSource.close();
             this.eventSource = null;
         }
+        this.stopLongPolling();
         this.isConnected = false;
         this.emit('disconnected');
     }
@@ -87,8 +90,8 @@ class RealtimeManager {
     // 处理重连逻辑
     handleReconnect() {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error('❌ 达到最大重连次数，停止重连');
-            UI.setConnectionStatus('failed');
+            console.error('❌ SSE达到最大重连次数，切换到长轮询模式');
+            this.fallbackToLongPolling();
             return;
         }
 
@@ -105,9 +108,93 @@ class RealtimeManager {
         }, delay);
     }
 
+    // 降级到长轮询
+    fallbackToLongPolling() {
+        console.log('🔄 切换到长轮询模式');
+        this.disconnect();
+        this.startLongPolling();
+    }
+
+    // 开始长轮询
+    startLongPolling() {
+        if (this.longPollingActive) {
+            return;
+        }
+
+        this.longPollingActive = true;
+        this.longPoll();
+    }
+
+    // 停止长轮询
+    stopLongPolling() {
+        this.longPollingActive = false;
+        if (this.longPollingTimeout) {
+            clearTimeout(this.longPollingTimeout);
+            this.longPollingTimeout = null;
+        }
+    }
+
+    // 长轮询实现
+    async longPoll() {
+        if (!this.longPollingActive) {
+            return;
+        }
+
+        try {
+            const lastMessageId = this.getLastMessageId();
+            const url = `/api/poll?deviceId=${encodeURIComponent(this.deviceId)}&lastMessageId=${lastMessageId}&timeout=30`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.success && data.hasNewMessages) {
+                console.log('📨 长轮询检测到新消息:', data);
+                this.emit('newMessages', { newMessages: data.newMessageCount });
+                MessageHandler.loadMessages();
+            }
+
+            // 设置连接状态
+            if (!this.isConnected) {
+                this.isConnected = true;
+                this.emit('connected');
+                UI.setConnectionStatus('connected');
+            }
+
+        } catch (error) {
+            console.error('长轮询请求失败:', error);
+            this.isConnected = false;
+            this.emit('disconnected');
+            UI.setConnectionStatus('disconnected');
+        }
+
+        // 继续下一次轮询
+        if (this.longPollingActive) {
+            this.longPollingTimeout = setTimeout(() => {
+                this.longPoll();
+            }, 1000); // 1秒后继续
+        }
+    }
+
+    // 获取最后一条消息ID
+    getLastMessageId() {
+        const messages = MessageHandler.lastMessages || [];
+        if (messages.length > 0) {
+            return messages[messages.length - 1].id || '0';
+        }
+        return '0';
+    }
+
     // 检查连接状态
     isConnectionAlive() {
-        return this.isConnected && this.eventSource && this.eventSource.readyState === EventSource.OPEN;
+        // SSE连接活跃
+        if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+            return true;
+        }
+        // 长轮询活跃
+        if (this.longPollingActive && this.isConnected) {
+            return true;
+        }
+        return false;
     }
 
     // 事件监听器
@@ -173,9 +260,11 @@ class RealtimeManager {
     // 销毁管理器
     destroy() {
         this.disconnect();
+        this.stopLongPolling();
         this.listeners.clear();
         this.deviceId = null;
         this.reconnectAttempts = 0;
+        this.longPollingActive = false;
     }
 }
 
