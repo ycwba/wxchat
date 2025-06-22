@@ -133,8 +133,7 @@ class PWAManager {
             // 保存事件，但不阻止默认行为（让浏览器显示原生提示）
             this.deferredPrompt = e;
 
-            // 可选：显示我们的自定义安装按钮
-            this.showInstallButton();
+            // 不显示自定义安装按钮，只保存事件供/pwa命令使用
         });
         
         // 监听应用安装事件
@@ -185,35 +184,14 @@ class PWAManager {
     
     // 设置安装提示
     setupInstallPrompt() {
-        // 如果已安装，不显示安装按钮
-        if (this.isInstalled) {
-            return;
-        }
-        
-        // 延迟显示安装提示（避免打扰用户）
-        setTimeout(() => {
-            if (this.deferredPrompt && !this.isInstalled) {
-                this.showInstallBanner();
-            }
-        }, 30000); // 30秒后显示
+        // 不自动显示任何安装提示，只通过/pwa命令手动触发
+        return;
     }
     
-    // 显示安装按钮
+    // 显示安装按钮（已禁用）
     showInstallButton() {
-        let installBtn = document.getElementById('pwa-install-btn');
-        
-        if (!installBtn) {
-            installBtn = document.createElement('button');
-            installBtn.id = 'pwa-install-btn';
-            installBtn.className = 'pwa-install-button';
-            installBtn.innerHTML = '📱 安装应用';
-            installBtn.onclick = () => this.promptInstall();
-            
-            // 添加到页面右下角
-            document.body.appendChild(installBtn);
-        }
-        
-        installBtn.style.display = 'block';
+        // 不显示悬浮安装按钮
+        return;
     }
     
     // 隐藏安装按钮
