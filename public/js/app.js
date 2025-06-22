@@ -9,6 +9,9 @@ class WeChatApp {
     // 初始化应用
     async init() {
         try {
+            // iOS Safari 视口修复
+            this.initIOSViewportFix();
+
             // 检查浏览器兼容性
             this.checkBrowserCompatibility();
 
@@ -38,6 +41,58 @@ class WeChatApp {
         }
     }
     
+    // iOS Safari 视口修复
+    initIOSViewportFix() {
+        // 检测是否为iOS设备
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        if (isIOS) {
+            // 设置CSS自定义属性来修复100vh问题
+            const setVH = () => {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            };
+
+            // 初始设置
+            setVH();
+
+            // 监听窗口大小变化（包括虚拟键盘弹出/收起）
+            window.addEventListener('resize', Utils.debounce(setVH, 100));
+            window.addEventListener('orientationchange', () => {
+                setTimeout(setVH, 500); // 延迟执行，等待方向改变完成
+            });
+
+            // 监听虚拟键盘事件
+            this.handleIOSKeyboard();
+        }
+    },
+
+    // 处理iOS虚拟键盘
+    handleIOSKeyboard() {
+        let initialViewportHeight = window.innerHeight;
+
+        const handleViewportChange = () => {
+            const currentHeight = window.innerHeight;
+            const heightDifference = initialViewportHeight - currentHeight;
+
+            // 如果高度减少超过150px，认为是虚拟键盘弹出
+            if (heightDifference > 150) {
+                document.body.classList.add('keyboard-open');
+                // 确保输入框可见
+                setTimeout(() => {
+                    const inputContainer = document.querySelector('.input-container');
+                    if (inputContainer) {
+                        inputContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }
+                }, 300);
+            } else {
+                document.body.classList.remove('keyboard-open');
+            }
+        };
+
+        window.addEventListener('resize', Utils.debounce(handleViewportChange, 100));
+    },
+
     // 检查浏览器兼容性
     checkBrowserCompatibility() {
         const requiredFeatures = [
@@ -46,22 +101,22 @@ class WeChatApp {
             'FormData',
             'FileReader'
         ];
-        
+
         const missingFeatures = requiredFeatures.filter(feature => {
             return !(feature in window);
         });
-        
+
         if (missingFeatures.length > 0) {
             throw new Error(`浏览器不支持以下功能: ${missingFeatures.join(', ')}`);
         }
-        
+
         // 检查ES6支持
         try {
             eval('const test = () => {};');
         } catch (e) {
             throw new Error('浏览器不支持ES6语法，请使用现代浏览器');
         }
-        
+
         // 浏览器兼容性检查通过
     }
     

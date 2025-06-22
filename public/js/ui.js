@@ -329,7 +329,24 @@ const UI = {
         // 使用requestAnimationFrame确保DOM更新完成后再滚动
         requestAnimationFrame(() => {
             const container = this.elements.messageList;
-            container.scrollTop = container.scrollHeight;
+
+            // iOS Safari 特殊处理
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            if (isIOS) {
+                // iOS上使用smooth滚动可能有问题，使用多重方法确保滚动
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'auto' // iOS上auto比smooth更可靠
+                });
+
+                // 备用方法
+                setTimeout(() => {
+                    container.scrollTop = container.scrollHeight;
+                }, 50);
+            } else {
+                container.scrollTop = container.scrollHeight;
+            }
         });
     },
     

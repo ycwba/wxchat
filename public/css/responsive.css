@@ -4,6 +4,9 @@
 @media (max-width: 768px) {
     .app {
         height: 100vh;
+        /* iOS Safari 视口修复 */
+        height: calc(var(--vh, 1vh) * 100);
+        min-height: -webkit-fill-available;
         max-width: 100%;
         border-radius: 0;
         box-shadow: none;
@@ -44,6 +47,10 @@
     .input-container {
         padding: 8px 12px;
         min-height: 56px;
+        /* iOS 平板特殊处理 */
+        padding-bottom: calc(8px + var(--safe-area-inset-bottom));
+        position: -webkit-sticky;
+        position: sticky;
     }
 
     .upload-area {
@@ -134,6 +141,10 @@
     .input-container {
         padding: 8px 12px;
         min-height: 56px;
+        /* iOS 手机特殊处理 */
+        padding-bottom: calc(8px + var(--safe-area-inset-bottom));
+        position: -webkit-sticky;
+        position: sticky;
     }
 
     .input-wrapper {
@@ -285,6 +296,85 @@
     .app-footer {
         padding: 0.4rem;
     }
+}
+
+/* iOS Safari 专用修复 */
+@supports (-webkit-touch-callout: none) {
+    .app {
+        height: -webkit-fill-available;
+        min-height: -webkit-fill-available;
+    }
+
+    .input-container {
+        /* 强制硬件加速，确保在iOS上正确渲染 */
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        /* 确保在虚拟键盘弹出时保持可见 */
+        position: -webkit-sticky;
+        position: sticky;
+        bottom: 0;
+        /* iOS 特殊的z-index处理 */
+        z-index: 9999;
+    }
+}
+
+/* iOS 设备特定修复 */
+@media screen and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait) {
+    .app {
+        height: calc(var(--vh, 1vh) * 100);
+        min-height: calc(var(--vh, 1vh) * 100);
+    }
+
+    .input-container {
+        /* 确保输入框在iOS上始终可见 */
+        position: fixed;
+        bottom: var(--safe-area-inset-bottom, 0);
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .message-list {
+        /* 为固定的输入框留出空间 */
+        padding-bottom: calc(72px + var(--safe-area-inset-bottom, 0));
+    }
+}
+
+/* iPhone X 及以上设备的安全区域适配 */
+@media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3),
+       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2),
+       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3),
+       screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3),
+       screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) {
+    .input-container {
+        padding-bottom: calc(8px + 34px); /* 34px 是 iPhone X 系列的底部安全区域 */
+    }
+}
+
+/* iOS 虚拟键盘弹出时的样式调整 */
+body.keyboard-open .app {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+}
+
+body.keyboard-open .input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    z-index: 10000;
+    /* 确保在虚拟键盘上方 */
+    transform: translateY(0);
+}
+
+body.keyboard-open .message-list {
+    /* 为固定输入框预留更多空间 */
+    padding-bottom: 80px;
 }
 
 /* 高分辨率屏幕 */
