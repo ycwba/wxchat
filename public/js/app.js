@@ -36,6 +36,11 @@ class WeChatApp {
             UI.init();
             FileUpload.init();
 
+            // 初始化PWA功能
+            if (typeof PWA !== 'undefined') {
+                PWA.init();
+            }
+
             // 设置初始连接状态
             UI.setConnectionStatus(navigator.onLine ? 'connected' : 'disconnected');
 
@@ -223,11 +228,14 @@ window.API = API;
 window.UI = UI;
 window.FileUpload = FileUpload;
 window.MessageHandler = MessageHandler;
+if (typeof PWA !== 'undefined') {
+    window.PWA = PWA;
+}
 
 // 开发模式下的调试信息
 if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     console.log('🔧 开发模式已启用');
-    console.log('可用的全局对象:', {
+    const debugObjects = {
         WeChatApp: app,
         CONFIG,
         Utils,
@@ -235,5 +243,11 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         UI,
         FileUpload,
         MessageHandler
-    });
+    };
+
+    if (typeof PWA !== 'undefined') {
+        debugObjects.PWA = PWA;
+    }
+
+    console.log('可用的全局对象:', debugObjects);
 }

@@ -460,10 +460,28 @@ const UI = {
         }
     },
 
-    // 设置连接状态（简化版，仅用于控制台日志）
+    // 设置连接状态
     setConnectionStatus(status) {
         console.log(`连接状态: ${status}`);
-        // 可以在这里添加其他状态指示，比如在消息列表中显示状态
+
+        // 创建或更新连接状态指示器
+        let statusElement = document.querySelector('.connection-status');
+
+        if (!statusElement) {
+            statusElement = document.createElement('div');
+            statusElement.className = 'connection-status';
+            document.body.appendChild(statusElement);
+        }
+
+        // 更新状态显示
+        const isOnline = status === 'connected';
+        statusElement.textContent = isOnline ? '已连接' : '离线模式';
+        statusElement.className = `connection-status ${isOnline ? 'online' : 'offline'}`;
+
+        // 如果是离线状态，显示提示
+        if (!isOnline) {
+            this.showNotification('已切换到离线模式，部分功能可能受限', 'warning');
+        }
     },
 
     // 显示上传状态
