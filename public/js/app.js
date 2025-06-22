@@ -47,6 +47,9 @@ class WeChatApp {
             // 显示欢迎消息
             this.showWelcomeMessage();
 
+            // 添加登出功能
+            this.addLogoutButton();
+
         } catch (error) {
             this.showInitError(error);
         }
@@ -183,7 +186,48 @@ class WeChatApp {
         location.reload();
     }
 
+    // 添加登出按钮
+    addLogoutButton() {
+        // 检查是否已经添加了登出按钮
+        if (document.getElementById('logoutButton')) {
+            return;
+        }
 
+        // 创建登出按钮
+        const logoutButton = document.createElement('button');
+        logoutButton.id = 'logoutButton';
+        logoutButton.innerHTML = '🔒 登出';
+        logoutButton.style.cssText = `
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: #ff4d4f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.2s ease;
+        `;
+
+        logoutButton.addEventListener('click', () => {
+            if (confirm('确定要登出吗？')) {
+                Auth.logout();
+            }
+        });
+
+        logoutButton.addEventListener('mouseenter', () => {
+            logoutButton.style.background = '#ff7875';
+        });
+
+        logoutButton.addEventListener('mouseleave', () => {
+            logoutButton.style.background = '#ff4d4f';
+        });
+
+        document.body.appendChild(logoutButton);
+    }
 
     // 清理应用数据
     clearData() {

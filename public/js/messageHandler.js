@@ -149,12 +149,6 @@ const MessageHandler = {
             return;
         }
 
-        // 检查是否为登出指令
-        if (this.isLogoutCommand(content)) {
-            await this.handleLogoutCommand();
-            return;
-        }
-
         try {
             UI.setSendButtonState(true, true);
             UI.setConnectionStatus('connecting');
@@ -186,13 +180,6 @@ const MessageHandler = {
         return CONFIG.CLEAR.TRIGGER_COMMANDS.some(cmd =>
             trimmedContent === cmd.toLowerCase()
         );
-    },
-
-    // 检查是否为登出指令
-    isLogoutCommand(content) {
-        const trimmedContent = content.trim().toLowerCase();
-        const logoutCommands = ['/logout', '/登出', 'logout', '登出'];
-        return logoutCommands.includes(trimmedContent);
     },
 
     // 处理清理指令
@@ -239,35 +226,6 @@ const MessageHandler = {
             UI.setConnectionStatus('disconnected');
         } finally {
             UI.setSendButtonState(false, false);
-        }
-    },
-
-    // 处理登出指令
-    async handleLogoutCommand() {
-        // 清空输入框
-        UI.clearInput();
-
-        // 显示确认对话框
-        const userConfirmed = confirm('确定要登出吗？登出后需要重新输入密码才能访问。');
-
-        if (!userConfirmed) {
-            UI.showError('登出已取消');
-            return;
-        }
-
-        try {
-            // 显示登出提示
-            UI.showSuccess('正在登出...');
-
-            // 延迟一下让用户看到提示
-            setTimeout(() => {
-                // 执行登出操作
-                Auth.logout();
-            }, 1000);
-
-        } catch (error) {
-            console.error('登出失败:', error);
-            UI.showError('登出失败，请重试');
         }
     },
     

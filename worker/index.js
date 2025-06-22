@@ -70,17 +70,8 @@ const authMiddleware = async (c, next) => {
     return next()
   }
 
-  // 获取token - 优先从Authorization头获取，其次从URL参数获取（用于SSE）
-  let token = null
   const authHeader = c.req.header('Authorization')
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7)
-  } else {
-    // 从URL参数获取token（用于SSE连接）
-    token = c.req.query('token')
-  }
-
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     // 对于API请求返回401，对于页面请求重定向到登录页
     if (path.startsWith('/api/')) {
       return c.json({ success: false, message: '未授权访问' }, 401)
@@ -88,6 +79,7 @@ const authMiddleware = async (c, next) => {
     return c.redirect('/login.html')
   }
 
+  const token = authHeader.substring(7)
   const payload = await AuthUtils.verifyToken(token, c.env.JWT_SECRET)
 
   if (!payload) {
