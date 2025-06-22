@@ -146,28 +146,43 @@ class PWAManager {
         });
         
         // 使用统一的网络状态管理器
-        if (typeof NetworkManager !== 'undefined') {
-            // 监听网络状态变化
-            NetworkManager.on('statusChange', (data) => {
-                this.isOnline = data.isOnline;
-                this.handleOnlineStatusChange();
-            });
+        this.setupNetworkManagerListeners();
+
+    }
+
+    // 设置网络管理器监听器
+    setupNetworkManagerListeners() {
+        const setupListeners = () => {
+            if (typeof NetworkManager !== 'undefined' && NetworkManager.on && typeof NetworkManager.on === 'function') {
+                // 监听网络状态变化
+                NetworkManager.on('statusChange', (data) => {
+                    this.isOnline = data.isOnline;
+                    this.handleOnlineStatusChange();
+                });
+            } else {
+                // 降级处理：如果NetworkManager不可用，使用原有逻辑
+                console.warn('PWA: NetworkManager不可用，使用降级网络监听');
+
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    this.handleOnlineStatusChange();
+                });
+
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                    this.handleOnlineStatusChange();
+                });
+            }
+        };
+
+        // 如果NetworkManager还没准备好，等待一段时间后重试
+        if (typeof NetworkManager === 'undefined' || !NetworkManager.on) {
+            setTimeout(setupListeners, 100);
         } else {
-            // 降级处理：如果NetworkManager不可用，使用原有逻辑
-            console.warn('PWA: NetworkManager不可用，使用降级网络监听');
-
-            window.addEventListener('online', () => {
-                this.isOnline = true;
-                this.handleOnlineStatusChange();
-            });
-
-            window.addEventListener('offline', () => {
-                this.isOnline = false;
-                this.handleOnlineStatusChange();
-            });
+            setupListeners();
         }
     }
-    
+
     // 处理网络状态变化
     handleOnlineStatusChange() {
         // 不再直接操作UI，让NetworkManager统一管理

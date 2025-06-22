@@ -265,9 +265,10 @@ class RealtimeManager {
 const Realtime = new RealtimeManager();
 
 // 使用统一的网络状态管理器
-if (typeof NetworkManager !== 'undefined') {
-    // 监听网络状态变化
-    NetworkManager.on('statusChange', (data) => {
+function setupNetworkManagerListeners() {
+    if (typeof NetworkManager !== 'undefined' && NetworkManager.on) {
+        // 监听网络状态变化
+        NetworkManager.on('statusChange', (data) => {
         if (data.isOnline && !Realtime.isConnectionAlive()) {
             console.log('网络恢复，重新建立实时连接');
             setTimeout(() => {
@@ -332,9 +333,9 @@ if (typeof NetworkManager !== 'undefined') {
             Realtime.fallbackToLongPolling();
         }
     });
-} else {
-    // 降级处理：如果NetworkManager不可用，使用原有逻辑
-    console.warn('NetworkManager不可用，使用降级网络监听');
+    } else {
+        // 降级处理：如果NetworkManager不可用，使用原有逻辑
+        console.warn('NetworkManager不可用，使用降级网络监听');
 
     window.addEventListener('online', () => {
         if (!Realtime.isConnectionAlive()) {
@@ -353,7 +354,21 @@ if (typeof NetworkManager !== 'undefined') {
             }
         }
     });
+    }
 }
+
+// 等待NetworkManager初始化完成后设置监听器
+function waitForNetworkManager() {
+    if (typeof NetworkManager !== 'undefined' && NetworkManager.on && typeof NetworkManager.on === 'function') {
+        setupNetworkManagerListeners();
+    } else {
+        // 如果NetworkManager还没准备好，等待一段时间后重试
+        setTimeout(waitForNetworkManager, 100);
+    }
+}
+
+// 开始等待NetworkManager
+waitForNetworkManager();
 
 // 导出到全局
 window.Realtime = Realtime;

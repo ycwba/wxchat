@@ -525,9 +525,10 @@ const MessageHandler = {
 };
 
 // 使用统一的网络状态管理器
-if (typeof NetworkManager !== 'undefined') {
-    // 监听网络状态变化
-    NetworkManager.on('statusChange', (data) => {
+function setupMessageHandlerNetworkListeners() {
+    if (typeof NetworkManager !== 'undefined' && NetworkManager.on) {
+        // 监听网络状态变化
+        NetworkManager.on('statusChange', (data) => {
         console.log('MessageHandler收到网络状态变化:', data);
 
         if (data.isOnline) {
@@ -552,9 +553,9 @@ if (typeof NetworkManager !== 'undefined') {
             MessageHandler.stopAutoRefresh();
         }
     });
-} else {
-    // 降级处理：如果NetworkManager不可用，使用原有逻辑
-    console.warn('NetworkManager不可用，使用降级事件监听');
+    } else {
+        // 降级处理：如果NetworkManager不可用，使用原有逻辑
+        console.warn('NetworkManager不可用，使用降级事件监听');
 
     document.addEventListener('visibilitychange', () => {
         MessageHandler.handleVisibilityChange();
@@ -567,7 +568,21 @@ if (typeof NetworkManager !== 'undefined') {
     window.addEventListener('offline', () => {
         MessageHandler.handleOnlineStatusChange();
     });
+    }
 }
+
+// 等待NetworkManager初始化完成后设置监听器
+function waitForMessageHandlerNetworkManager() {
+    if (typeof NetworkManager !== 'undefined' && NetworkManager.on && typeof NetworkManager.on === 'function') {
+        setupMessageHandlerNetworkListeners();
+    } else {
+        // 如果NetworkManager还没准备好，等待一段时间后重试
+        setTimeout(waitForMessageHandlerNetworkManager, 100);
+    }
+}
+
+// 开始等待NetworkManager
+waitForMessageHandlerNetworkManager();
 
 // 页面卸载时清理定时器
 window.addEventListener('beforeunload', () => {

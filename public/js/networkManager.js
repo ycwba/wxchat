@@ -315,8 +315,8 @@ class NetworkManager {
         try {
             const startTime = Date.now();
 
-            // 移动端使用更轻量的检测方式
-            const testUrl = this.isMobile ? '/api/messages?limit=1' : '/api/ping';
+            // 使用现有的API端点进行网络质量检测
+            const testUrl = '/api/messages?limit=1';
             const timeoutMs = this.isMobile ? 8000 : 5000; // 移动端超时时间更长
 
             // 创建带超时的fetch请求
