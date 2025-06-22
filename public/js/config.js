@@ -9,11 +9,7 @@ const CONFIG = {
             FILES_UPLOAD: '/api/files/upload',
             FILES_DOWNLOAD: '/api/files/download',
             SYNC: '/api/sync',
-            CLEAR_ALL: '/api/clear-all',
-            // 鉴权相关接口
-            AUTH_LOGIN: '/api/auth/login',
-            AUTH_VERIFY: '/api/auth/verify',
-            AUTH_LOGOUT: '/api/auth/logout'
+            CLEAR_ALL: '/api/clear-all'
         }
     },
     
