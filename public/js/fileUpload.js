@@ -362,11 +362,8 @@ const FileUpload = {
             UI.showSuccess(`成功上传 ${successCount} 个文件`);
 
             // 添加延迟确保数据库写入完成
-            console.log('文件上传成功，准备刷新消息列表...');
             setTimeout(async () => {
-                console.log('开始刷新消息列表...');
                 await MessageHandler.loadMessages(true); // 强制滚动到底部
-                console.log('消息列表刷新完成');
             }, 500); // 延迟500ms
         }
 
