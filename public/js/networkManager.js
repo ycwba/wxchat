@@ -622,13 +622,13 @@ class NetworkManager {
 }
 
 // 创建全局实例
-let NetworkManager;
+let networkManagerInstance;
 
 try {
-    NetworkManager = new NetworkManager();
+    networkManagerInstance = new NetworkManager();
 
     // 导出到全局
-    window.NetworkManager = NetworkManager;
+    window.NetworkManager = networkManagerInstance;
 
     console.log('✅ NetworkManager已成功创建并导出到全局');
 
