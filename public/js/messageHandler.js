@@ -14,10 +14,56 @@ const MessageHandler = {
     init() {
         this.bindEvents();
 
+        // 初始化实时通信
+        this.initRealtime();
+
         // 直接加载消息，不显示加载状态
         this.loadMessages(true); // 初始加载时强制滚动
         this.syncDevice();
-        this.startAutoRefresh();
+
+        // 如果实时连接失败，启用轮询
+        setTimeout(() => {
+            if (!window.Realtime || !window.Realtime.isConnectionAlive()) {
+                console.log('🔄 实时连接未建立，启用轮询模式');
+                this.startAutoRefresh();
+            }
+        }, 2000);
+    },
+
+    // 初始化实时通信
+    initRealtime() {
+        // 检查是否支持SSE
+        if (typeof EventSource === 'undefined') {
+            console.warn('⚠️ 浏览器不支持Server-Sent Events，使用轮询模式');
+            this.startAutoRefresh();
+            return;
+        }
+
+        const deviceId = Utils.getDeviceId();
+
+        // 初始化实时连接
+        if (window.Realtime) {
+            Realtime.init(deviceId);
+
+            // 监听实时事件
+            Realtime.on('connected', () => {
+                console.log('🔗 实时连接已建立，停止轮询');
+                this.stopAutoRefresh();
+            });
+
+            Realtime.on('disconnected', () => {
+                console.log('❌ 实时连接断开，启用轮询');
+                this.startAutoRefresh();
+            });
+
+            Realtime.on('newMessages', (data) => {
+                console.log('📨 收到新消息通知:', data);
+                this.loadMessages();
+            });
+        } else {
+            console.warn('⚠️ Realtime模块未加载，使用轮询模式');
+            this.startAutoRefresh();
+        }
     },
     
     // 绑定事件

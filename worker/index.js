@@ -294,6 +294,50 @@ api.post('/clear-all', async (c) => {
   }
 })
 
+// Server-Sent Events 实时通信
+api.get('/events', async (c) => {
+  const deviceId = c.req.query('deviceId')
+
+  if (!deviceId) {
+    return c.json({ error: '设备ID不能为空' }, 400)
+  }
+
+  return c.stream((stream) => {
+    // 设置SSE头部
+    stream.writeSSE('connected', 'connection')
+
+    // 定期发送心跳
+    const heartbeat = setInterval(() => {
+      stream.writeSSE('ping', 'heartbeat')
+    }, 30000)
+
+    // 监听新消息（这里可以扩展为真正的消息推送）
+    const checkMessages = setInterval(async () => {
+      try {
+        const { DB } = c.env
+        const stmt = DB.prepare(`
+          SELECT COUNT(*) as count
+          FROM messages
+          WHERE timestamp > datetime('now', '-10 seconds')
+        `)
+        const result = await stmt.first()
+
+        if (result.count > 0) {
+          stream.writeSSE(JSON.stringify({ newMessages: result.count }), 'message')
+        }
+      } catch (error) {
+        console.error('SSE消息检查失败:', error)
+      }
+    }, 5000)
+
+    // 清理资源
+    stream.onAbort(() => {
+      clearInterval(heartbeat)
+      clearInterval(checkMessages)
+    })
+  })
+})
+
 // 挂载API路由
 app.route('/api', api)
 

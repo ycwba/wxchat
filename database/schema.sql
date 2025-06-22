@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS messages (
     content TEXT, -- 文本消息内容
     file_id INTEGER, -- 关联的文件ID（如果是文件消息）
     device_id TEXT NOT NULL, -- 发送设备标识
+    status TEXT DEFAULT 'sent' CHECK (status IN ('sending', 'sent', 'failed', 'read')), -- 消息状态
+    read_by TEXT DEFAULT '[]', -- 已读设备列表（JSON格式）
+    retry_count INTEGER DEFAULT 0, -- 重试次数
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
