@@ -480,7 +480,7 @@ const UI = {
 
         // 如果是离线状态，显示提示
         if (!isOnline) {
-            this.showNotification('已切换到离线模式，部分功能可能受限', 'warning');
+            Utils.showNotification('已切换到离线模式，部分功能可能受限', 'warning');
         }
     },
 

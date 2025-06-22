@@ -15,7 +15,7 @@ class PWAManager {
     async init() {
         try {
             // 检查PWA支持
-            this.checkPWASupport();
+            await this.checkPWASupport();
             
             // 注册Service Worker
             await this.registerServiceWorker();
@@ -36,14 +36,23 @@ class PWAManager {
     }
     
     // 检查PWA支持
-    checkPWASupport() {
+    async checkPWASupport() {
+        // 检查Manifest是否可访问
+        let manifestSupported = false;
+        try {
+            const response = await fetch('/manifest.json');
+            manifestSupported = response.ok;
+        } catch (error) {
+            manifestSupported = false;
+        }
+
         const features = {
             serviceWorker: 'serviceWorker' in navigator,
-            manifest: 'manifest' in document.createElement('link'),
+            manifest: manifestSupported,
             notification: 'Notification' in window,
             pushManager: 'PushManager' in window
         };
-        
+
         console.log('🔍 PWA功能支持情况:', features);
         return features;
     }
@@ -334,14 +343,52 @@ class PWAManager {
     }
     
     // 获取PWA状态
-    getStatus() {
+    async getStatus() {
+        const manifestCheck = await this.checkManifestStatus();
+
         return {
             installed: this.isInstalled,
             online: this.isOnline,
             serviceWorkerSupported: 'serviceWorker' in navigator,
             serviceWorkerRegistered: !!this.swRegistration,
-            installPromptAvailable: !!this.deferredPrompt
+            installPromptAvailable: !!this.deferredPrompt,
+            manifestAccessible: manifestCheck.accessible,
+            manifestValid: manifestCheck.valid,
+            cacheCount: await this.getCacheCount()
         };
+    }
+
+    // 检查Manifest状态
+    async checkManifestStatus() {
+        try {
+            const response = await fetch('/manifest.json');
+            if (!response.ok) {
+                return { accessible: false, valid: false, error: `HTTP ${response.status}` };
+            }
+
+            const manifest = await response.json();
+            const hasRequiredFields = manifest.name && manifest.start_url && manifest.icons;
+
+            return {
+                accessible: true,
+                valid: hasRequiredFields,
+                data: manifest
+            };
+        } catch (error) {
+            return { accessible: false, valid: false, error: error.message };
+        }
+    }
+
+    // 获取缓存数量
+    async getCacheCount() {
+        if (!('caches' in window)) return 0;
+
+        try {
+            const cacheNames = await caches.keys();
+            return cacheNames.length;
+        } catch (error) {
+            return 0;
+        }
     }
 }
 
