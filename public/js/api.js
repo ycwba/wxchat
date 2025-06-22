@@ -67,12 +67,16 @@ const API = {
     // 获取消息列表
     async getMessages(limit = CONFIG.UI.MESSAGE_LOAD_LIMIT, offset = 0) {
         try {
+            console.log(`请求消息列表，limit: ${limit}, offset: ${offset}`);
             const response = await this.get(CONFIG.API.ENDPOINTS.MESSAGES, {
                 limit,
                 offset
             });
 
+            console.log('API响应:', response);
+
             if (response && response.success) {
+                console.log(`成功获取 ${response.data?.length || 0} 条消息`);
                 return response.data || [];
             } else {
                 throw new Error(response?.error || CONFIG.ERRORS.LOAD_MESSAGES_FAILED);

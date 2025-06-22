@@ -73,19 +73,25 @@ const MessageHandler = {
     async loadMessages(forceScroll = false) {
         // 防止重复请求
         if (this.isLoading) {
+            console.log('消息加载中，跳过重复请求');
             return;
         }
 
         this.isLoading = true;
+        console.log(`开始加载消息，forceScroll: ${forceScroll}`);
 
         try {
             const messages = await API.getMessages();
+            console.log(`获取到 ${messages.length} 条消息`);
 
             // 检测消息变化
             const hasChanges = this.detectMessageChanges(messages);
+            console.log(`消息变化检测结果: ${hasChanges}`);
 
             // 总是更新UI，即使没有变化（首次加载时需要显示最终状态）
             const isFirstLoad = this.lastMessages.length === 0;
+            console.log(`是否首次加载: ${isFirstLoad}`);
+
             if (hasChanges || forceScroll || isFirstLoad) {
                 // 智能滚动逻辑：
                 // 1. 强制滚动时总是滚动
@@ -93,11 +99,15 @@ const MessageHandler = {
                 // 3. 初次加载时滚动
                 const userAtBottom = UI.isAtBottom();
                 const shouldScroll = forceScroll || (hasChanges && userAtBottom) || isFirstLoad;
+                console.log(`准备渲染消息，shouldScroll: ${shouldScroll}`);
 
                 UI.renderMessages(messages, shouldScroll);
 
                 // 更新缓存
                 this.lastMessages = [...messages];
+                console.log('消息缓存已更新');
+            } else {
+                console.log('没有变化，跳过UI更新');
             }
 
         } catch (error) {
@@ -117,8 +127,11 @@ const MessageHandler = {
 
     // 检测消息变化
     detectMessageChanges(newMessages) {
+        console.log(`检测消息变化: 新消息数量 ${newMessages.length}, 缓存消息数量 ${this.lastMessages.length}`);
+
         // 如果数量不同，肯定有变化
         if (newMessages.length !== this.lastMessages.length) {
+            console.log('消息数量发生变化');
             return true;
         }
 
@@ -128,10 +141,12 @@ const MessageHandler = {
             const oldMsg = this.lastMessages[i];
 
             if (!oldMsg || newMsg.id !== oldMsg.id || newMsg.timestamp !== oldMsg.timestamp) {
+                console.log(`消息内容发生变化，位置: ${i}`);
                 return true;
             }
         }
 
+        console.log('没有检测到消息变化');
         return false;
     },
     
