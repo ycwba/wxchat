@@ -230,43 +230,19 @@ window.FileUpload = FileUpload;
 window.MessageHandler = MessageHandler;
 if (typeof PWA !== 'undefined') {
     window.PWA = PWA;
-
-    // 添加PWA诊断命令
-    window.checkPWA = async () => {
-        console.log('🔍 PWA状态检查...');
-        const status = await PWA.getStatus();
-        console.table(status);
-
-        if (!status.manifestAccessible) {
-            console.error('❌ Manifest文件无法访问');
-        }
-        if (!status.serviceWorkerRegistered) {
-            console.error('❌ Service Worker未注册');
-        }
-        if (status.cacheCount === 0) {
-            console.warn('⚠️ 没有缓存数据');
-        }
-
-        return status;
-    };
 }
 
 // 开发模式下的调试信息
 if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     console.log('🔧 开发模式已启用');
-    const debugObjects = {
+    console.log('可用的全局对象:', {
         WeChatApp: app,
         CONFIG,
         Utils,
         API,
         UI,
         FileUpload,
-        MessageHandler
-    };
-
-    if (typeof PWA !== 'undefined') {
-        debugObjects.PWA = PWA;
-    }
-
-    console.log('可用的全局对象:', debugObjects);
+        MessageHandler,
+        PWA: typeof PWA !== 'undefined' ? PWA : undefined
+    });
 }
