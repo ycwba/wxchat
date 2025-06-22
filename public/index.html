@@ -12,27 +12,10 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json">
-
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
-    <link rel="icon" type="image/png" sizes="32x32" href="./icons/ios/32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./icons/ios/16.png">
-
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="./icons/ios/180.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="./icons/ios/152.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="./icons/ios/144.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="./icons/ios/120.png">
-
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#07c160">
-    <meta name="background-color" content="#ffffff">
-    <meta name="apple-mobile-web-app-title" content="微信文件传输助手">
-
     <meta name="description" content="基于Cloudflare Workers的微信文件传输助手Web应用">
-    <meta name="keywords" content="文件传输,微信,Cloudflare,Workers,PWA">
+    <meta name="keywords" content="文件传输,微信,Cloudflare,Workers">
     
     <!-- 样式文件 -->
     <link rel="stylesheet" href="./css/reset.css">
@@ -98,16 +81,12 @@
     <!-- JavaScript 模块 -->
     <script src="./js/config.js"></script>
     <script src="./js/utils.js"></script>
-    <script src="./js/networkManager.js"></script> <!-- 网络管理器必须在其他模块之前加载 -->
     <script src="./js/auth.js"></script>
     <script src="./js/api.js"></script>
     <script src="./js/ui.js"></script>
     <script src="./js/fileUpload.js"></script>
     <script src="./js/realtime.js"></script>
     <script src="./js/messageHandler.js"></script>
-    <script src="./js/pwa.js"></script>
     <script src="./js/app.js"></script>
-
-
 </body>
 </html>

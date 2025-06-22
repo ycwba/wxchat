@@ -32,24 +32,12 @@ class WeChatApp {
             // 请求通知权限
             await Utils.requestNotificationPermission();
 
-            // 首先初始化网络管理器（必须在其他模块之前）
-            if (typeof NetworkManager !== 'undefined') {
-                console.log('🌐 使用统一网络状态管理器');
-                // NetworkManager已经在构造函数中自动初始化
-            } else {
-                console.warn('⚠️ NetworkManager未加载，使用降级网络处理');
-                // 设置初始连接状态（降级处理）
-                UI.setConnectionStatus(navigator.onLine ? 'connected' : 'disconnected');
-            }
-
             // 初始化各个模块
             UI.init();
             FileUpload.init();
 
-            // 初始化PWA功能
-            if (typeof PWA !== 'undefined') {
-                PWA.init();
-            }
+            // 设置初始连接状态
+            UI.setConnectionStatus(navigator.onLine ? 'connected' : 'disconnected');
 
             MessageHandler.init();
 
@@ -227,14 +215,6 @@ window.addEventListener('unhandledrejection', (event) => {
     Utils.showNotification('网络请求失败，请检查网络连接', 'error');
 });
 
-// 页面卸载时清理资源
-window.addEventListener('beforeunload', () => {
-    // 清理图片blob URL缓存，避免内存泄漏
-    if (typeof API !== 'undefined' && API.clearImageBlobCache) {
-        API.clearImageBlobCache();
-    }
-});
-
 // 导出到全局作用域（用于调试）
 window.WeChatApp = app;
 window.CONFIG = CONFIG;
@@ -243,9 +223,6 @@ window.API = API;
 window.UI = UI;
 window.FileUpload = FileUpload;
 window.MessageHandler = MessageHandler;
-if (typeof PWA !== 'undefined') {
-    window.PWA = PWA;
-}
 
 // 开发模式下的调试信息
 if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
@@ -257,7 +234,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         API,
         UI,
         FileUpload,
-        MessageHandler,
-        PWA: typeof PWA !== 'undefined' ? PWA : undefined
+        MessageHandler
     });
 }

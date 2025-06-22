@@ -155,18 +155,6 @@ const MessageHandler = {
             return;
         }
 
-        // 检查是否为PWA指令
-        if (this.isPWACommand(content)) {
-            await this.handlePWACommand();
-            return;
-        }
-
-        // 检查是否为网络诊断指令
-        if (this.isNetworkDiagnosisCommand(content)) {
-            await this.handleNetworkDiagnosisCommand();
-            return;
-        }
-
         try {
             UI.setSendButtonState(true, true);
             UI.setConnectionStatus('connecting');
@@ -205,18 +193,6 @@ const MessageHandler = {
         const trimmedContent = content.trim().toLowerCase();
         const logoutCommands = ['/logout', '/登出', 'logout', '登出'];
         return logoutCommands.includes(trimmedContent);
-    },
-
-    // 检查是否为PWA指令
-    isPWACommand(content) {
-        const trimmedContent = content.trim().toLowerCase();
-        return CONFIG.PWA.TRIGGER_COMMANDS.includes(trimmedContent);
-    },
-
-    // 检查是否为网络诊断指令
-    isNetworkDiagnosisCommand(content) {
-        const diagnosisCommands = ['/网络诊断', '/network', '/诊断', '/debug-network', '/网络检测'];
-        return diagnosisCommands.includes(content.trim());
     },
 
     // 处理清理指令
@@ -294,144 +270,7 @@ const MessageHandler = {
             UI.showError('登出失败，请重试');
         }
     },
-
-    // 处理PWA指令
-    async handlePWACommand() {
-        // 清空输入框
-        UI.clearInput();
-
-        try {
-            // 检查PWA支持和状态
-            if (typeof PWA === 'undefined') {
-                UI.showError('PWA功能不可用');
-                return;
-            }
-
-            const pwaStatus = await PWA.getStatus();
-
-            // 检查是否已安装
-            if (pwaStatus.installed) {
-                UI.showSuccess(`📱 应用已安装\n\n✅ 当前运行在独立模式\n🚀 享受原生应用体验！`);
-                return;
-            }
-
-            // 检查是否可以安装
-            if (pwaStatus.installPromptAvailable) {
-                // 构建安装好处列表
-                const benefits = CONFIG.PWA.INSTALL_BENEFITS.map(benefit => `• ${benefit}`).join('\n');
-
-                // 显示安装确认
-                const userConfirmed = confirm(`🚀 检测到可以安装微信文件传输助手到桌面！\n\n📱 安装后可以：\n${benefits}\n\n确定要安装吗？`);
-
-                if (userConfirmed) {
-                    // 触发安装
-                    await PWA.promptInstall();
-                } else {
-                    UI.showSuccess('安装已取消\n\n💡 提示：随时输入 /pwa 可以重新安装');
-                }
-            } else {
-                // 显示PWA状态和安装指南
-                let statusMessage = '📱 PWA应用状态\n\n';
-
-                if (pwaStatus.serviceWorkerRegistered) {
-                    statusMessage += '✅ Service Worker: 已注册\n';
-                } else {
-                    statusMessage += '❌ Service Worker: 未注册\n';
-                }
-
-                if (pwaStatus.manifestAccessible) {
-                    statusMessage += '✅ 应用清单: 可访问\n';
-                } else {
-                    statusMessage += '❌ 应用清单: 不可访问\n';
-                }
-
-                statusMessage += `💾 缓存数量: ${pwaStatus.cacheCount || 0}\n\n`;
-
-                // 添加安装指南
-                statusMessage += '📖 手动安装指南：\n\n';
-                statusMessage += '🤖 Android (Chrome):\n';
-                statusMessage += '• 地址栏右侧点击安装图标\n';
-                statusMessage += '• 或菜单 → "安装应用"\n\n';
-                statusMessage += '🍎 iPhone (Safari):\n';
-                statusMessage += '• 点击分享按钮 📤\n';
-                statusMessage += '• 选择"添加到主屏幕"\n\n';
-                statusMessage += '💻 桌面 (Chrome/Edge):\n';
-                statusMessage += '• 地址栏右侧安装图标\n';
-                statusMessage += '• 或菜单 → "安装wxchat"';
-
-                UI.showSuccess(statusMessage);
-            }
-
-        } catch (error) {
-            console.error('PWA指令处理失败:', error);
-            UI.showError('PWA功能检查失败，请重试');
-        }
-    },
-
-    // 处理网络诊断指令
-    async handleNetworkDiagnosisCommand() {
-        try {
-            UI.clearInput();
-            UI.showSuccess('🔍 正在进行网络诊断，请稍候...');
-
-            if (typeof NetworkManager === 'undefined') {
-                UI.showError('网络管理器未加载，无法进行诊断');
-                return;
-            }
-
-            // 执行网络诊断
-            const diagnosis = await NetworkManager.diagnoseMobileNetwork();
-
-            if (diagnosis.error) {
-                UI.showError(diagnosis.error);
-                return;
-            }
-
-            // 生成诊断报告
-            const report = NetworkManager.generateDiagnosisReport(diagnosis);
-
-            // 显示诊断结果
-            UI.showSuccess(report);
-
-            // 如果是移动端且有网络问题，提供建议
-            if (diagnosis.device.isMobile) {
-                const hasNetworkIssues = diagnosis.tests.some(test => !test.success);
-
-                if (hasNetworkIssues) {
-                    setTimeout(() => {
-                        const suggestions = `
-🔧 移动端网络问题建议：
-
-📱 基础检查：
-• 确保WiFi或移动数据连接正常
-• 尝试切换网络（WiFi ↔ 移动数据）
-• 检查是否开启了省电模式
-
-🌐 浏览器设置：
-• 清除浏览器缓存和数据
-• 关闭广告拦截器
-• 允许网站使用后台刷新
-
-📲 PWA模式：
-• 如果使用PWA，尝试重新安装
-• 检查是否允许通知权限
-
-🔄 如果问题持续：
-• 重启浏览器或设备
-• 输入 /网络诊断 重新检测
-                        `.trim();
-
-                        UI.showSuccess(suggestions);
-                    }, 2000);
-                }
-            }
-
-        } catch (error) {
-            console.error('网络诊断失败:', error);
-            UI.showError('网络诊断失败，请稍后重试');
-        }
-    },
-
+    
     // 设备同步
     async syncDevice() {
         try {
@@ -524,65 +363,19 @@ const MessageHandler = {
     }
 };
 
-// 使用统一的网络状态管理器
-function setupMessageHandlerNetworkListeners() {
-    if (typeof NetworkManager !== 'undefined' && NetworkManager.on) {
-        // 监听网络状态变化
-        NetworkManager.on('statusChange', (data) => {
-        console.log('MessageHandler收到网络状态变化:', data);
+// 监听页面可见性变化
+document.addEventListener('visibilitychange', () => {
+    MessageHandler.handleVisibilityChange();
+});
 
-        if (data.isOnline) {
-            // 网络恢复时的处理
-            MessageHandler.restartAutoRefresh();
-            MessageHandler.loadMessages(false); // 不强制滚动
-        } else {
-            // 网络断开时的处理
-            MessageHandler.stopAutoRefresh();
-            UI.showError('网络连接已断开');
-        }
-    });
+// 监听网络状态变化
+window.addEventListener('online', () => {
+    MessageHandler.handleOnlineStatusChange();
+});
 
-    // 监听页面可见性变化
-    NetworkManager.on('visibilityChange', (data) => {
-        if (data.visible) {
-            // 页面显示时重启自动刷新并立即刷新一次
-            MessageHandler.startAutoRefresh();
-            MessageHandler.loadMessages(false);
-        } else {
-            // 页面隐藏时停止自动刷新
-            MessageHandler.stopAutoRefresh();
-        }
-    });
-    } else {
-        // 降级处理：如果NetworkManager不可用，使用原有逻辑
-        console.warn('NetworkManager不可用，使用降级事件监听');
-
-    document.addEventListener('visibilitychange', () => {
-        MessageHandler.handleVisibilityChange();
-    });
-
-    window.addEventListener('online', () => {
-        MessageHandler.handleOnlineStatusChange();
-    });
-
-    window.addEventListener('offline', () => {
-        MessageHandler.handleOnlineStatusChange();
-    });
-    }
-}
-
-// 等待NetworkManager初始化完成后设置监听器
-function waitForMessageHandlerNetworkManager() {
-    if (typeof NetworkManager !== 'undefined' && NetworkManager.on && typeof NetworkManager.on === 'function') {
-        setupMessageHandlerNetworkListeners();
-    } else {
-        // 如果NetworkManager还没准备好，等待一段时间后重试
-        setTimeout(waitForMessageHandlerNetworkManager, 100);
-    }
-}
-
-// 开始等待NetworkManager
-waitForMessageHandlerNetworkManager();
+window.addEventListener('offline', () => {
+    MessageHandler.handleOnlineStatusChange();
+});
 
 // 页面卸载时清理定时器
 window.addEventListener('beforeunload', () => {
