@@ -164,11 +164,12 @@ class PWAManager {
             statusElement.textContent = this.isOnline ? '已连接' : '离线模式';
             statusElement.className = `connection-status ${this.isOnline ? 'online' : 'offline'}`;
         }
-        
-        // 显示网络状态通知
-        const message = this.isOnline ? '网络已连接' : '已切换到离线模式';
-        const type = this.isOnline ? 'success' : 'warning';
-        Utils.showNotification(message, type);
+
+        // 只在网络状态真正变化时显示通知，避免重复提示
+        if (this.isOnline) {
+            Utils.showNotification('网络已连接', 'success');
+        }
+        // 离线状态的通知由UI.setConnectionStatus处理，避免重复
     }
     
     // 检查安装状态
