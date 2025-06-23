@@ -78,6 +78,17 @@ class WeChatApp {
                 window.ImageGenHandler = ImageGenHandler;
             }
 
+            // 初始化搜索模块
+            if (typeof SearchUI !== 'undefined') {
+                SearchUI.init();
+                window.SearchUI = SearchUI;
+            }
+
+            if (typeof SearchHandler !== 'undefined') {
+                SearchHandler.init();
+                window.SearchHandler = SearchHandler;
+            }
+
             // 设置初始连接状态
             UI.setConnectionStatus(navigator.onLine ? 'connected' : 'disconnected');
 
@@ -353,6 +364,17 @@ if (typeof ImageGenHandler !== 'undefined') {
     window.ImageGenHandler = ImageGenHandler;
 }
 
+// 搜索模块全局导出
+if (typeof SearchAPI !== 'undefined') {
+    window.SearchAPI = SearchAPI;
+}
+if (typeof SearchUI !== 'undefined') {
+    window.SearchUI = SearchUI;
+}
+if (typeof SearchHandler !== 'undefined') {
+    window.SearchHandler = SearchHandler;
+}
+
 // 开发模式下的调试信息
 if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     console.log('🔧 开发模式已启用');
@@ -370,6 +392,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         AIHandler: typeof AIHandler !== 'undefined' ? AIHandler : undefined,
         ImageGenAPI: typeof ImageGenAPI !== 'undefined' ? ImageGenAPI : undefined,
         ImageGenUI: typeof ImageGenUI !== 'undefined' ? ImageGenUI : undefined,
-        ImageGenHandler: typeof ImageGenHandler !== 'undefined' ? ImageGenHandler : undefined
+        ImageGenHandler: typeof ImageGenHandler !== 'undefined' ? ImageGenHandler : undefined,
+        SearchAPI: typeof SearchAPI !== 'undefined' ? SearchAPI : undefined,
+        SearchUI: typeof SearchUI !== 'undefined' ? SearchUI : undefined,
+        SearchHandler: typeof SearchHandler !== 'undefined' ? SearchHandler : undefined
     });
 }

@@ -41,6 +41,12 @@ const FunctionMenu = {
             action: 'file'
         },
         {
+            id: 'search',
+            icon: '🔍',
+            title: '搜索',
+            action: 'search'
+        },
+        {
             id: 'favorite',
             icon: '⭐',
             title: '收藏',
@@ -57,6 +63,24 @@ const FunctionMenu = {
             icon: '🎨',
             title: 'AI绘画',
             action: 'aiImageGen'
+        },
+        {
+            id: 'clear-chat',
+            icon: '🧹',
+            title: '清理记录',
+            action: 'clearChat'
+        },
+        {
+            id: 'pwa-manage',
+            icon: '📱',
+            title: 'PWA管理',
+            action: 'pwaManage'
+        },
+        {
+            id: 'logout',
+            icon: '🚪',
+            title: '登出',
+            action: 'logout'
         }
     ],
 
@@ -179,6 +203,9 @@ const FunctionMenu = {
             case 'file':
                 this.handleFile();
                 break;
+            case 'search':
+                this.handleSearch();
+                break;
             case 'favorite':
                 this.handleFavorite();
                 break;
@@ -187,6 +214,15 @@ const FunctionMenu = {
                 break;
             case 'aiImageGen':
                 this.handleAiImageGen();
+                break;
+            case 'clearChat':
+                this.handleClearChat();
+                break;
+            case 'pwaManage':
+                this.handlePwaManage();
+                break;
+            case 'logout':
+                this.handleLogout();
                 break;
             default:
                 this.showComingSoon(action);
@@ -283,6 +319,32 @@ const FunctionMenu = {
         this.insertTextToInput('⭐ [收藏] 分享了一个收藏');
     },
 
+    // 搜索功能
+    handleSearch() {
+        // 检查搜索功能是否可用
+        if (!CONFIG.SEARCH.ENABLED) {
+            this.insertTextToInput('🔍 搜索功能暂未启用');
+            return;
+        }
+
+        // 检查SearchUI是否已加载
+        if (window.SearchUI && typeof SearchUI.showSearchModal === 'function') {
+            // 显示搜索模态框
+            SearchUI.showSearchModal();
+        } else {
+            // 如果搜索模块未加载，显示提示
+            this.insertTextToInput('🔍 搜索模块正在加载中...');
+
+            // 尝试初始化搜索模块
+            setTimeout(() => {
+                if (window.SearchUI && typeof SearchUI.init === 'function') {
+                    SearchUI.init();
+                    SearchUI.showSearchModal();
+                }
+            }, 100);
+        }
+    },
+
     // AI助手功能
     handleAiChat() {
         // 检查AI功能是否可用
@@ -333,6 +395,78 @@ const FunctionMenu = {
                 if (window.ImageGenUI && typeof ImageGenUI.init === 'function') {
                     ImageGenUI.init();
                     ImageGenUI.showImageGenModal();
+                }
+            }, 100);
+        }
+    },
+
+    // 聊天记录清理功能
+    handleClearChat() {
+        // 复用现有的清理逻辑
+        if (window.MessageHandler && typeof MessageHandler.handleClearCommand === 'function') {
+            MessageHandler.handleClearCommand();
+        } else {
+            // 如果MessageHandler未加载，显示提示
+            this.insertTextToInput('🧹 正在初始化清理功能...');
+
+            // 尝试通过输入清理命令来触发
+            setTimeout(() => {
+                const messageText = document.getElementById('messageText');
+                if (messageText) {
+                    messageText.value = '/clear-all';
+                    // 触发发送消息
+                    const sendButton = document.getElementById('sendButton');
+                    if (sendButton) {
+                        sendButton.click();
+                    }
+                }
+            }, 100);
+        }
+    },
+
+    // PWA管理功能
+    handlePwaManage() {
+        // 复用现有的PWA逻辑
+        if (window.MessageHandler && typeof MessageHandler.handlePWACommand === 'function') {
+            MessageHandler.handlePWACommand();
+        } else {
+            // 如果MessageHandler未加载，显示提示
+            this.insertTextToInput('📱 正在初始化PWA管理功能...');
+
+            // 尝试通过输入PWA命令来触发
+            setTimeout(() => {
+                const messageText = document.getElementById('messageText');
+                if (messageText) {
+                    messageText.value = '/pwa';
+                    // 触发发送消息
+                    const sendButton = document.getElementById('sendButton');
+                    if (sendButton) {
+                        sendButton.click();
+                    }
+                }
+            }, 100);
+        }
+    },
+
+    // 登出功能
+    handleLogout() {
+        // 复用现有的登出逻辑
+        if (window.MessageHandler && typeof MessageHandler.handleLogoutCommand === 'function') {
+            MessageHandler.handleLogoutCommand();
+        } else {
+            // 如果MessageHandler未加载，显示提示
+            this.insertTextToInput('🚪 正在初始化登出功能...');
+
+            // 尝试通过输入登出命令来触发
+            setTimeout(() => {
+                const messageText = document.getElementById('messageText');
+                if (messageText) {
+                    messageText.value = '/logout';
+                    // 触发发送消息
+                    const sendButton = document.getElementById('sendButton');
+                    if (sendButton) {
+                        sendButton.click();
+                    }
                 }
             }, 100);
         }
