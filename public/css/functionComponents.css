@@ -343,34 +343,18 @@
     background: #a8a8a8;
 }
 
-/* 管理命令菜单项特殊样式 */
-.function-menu-item[data-action="clearChat"] .function-menu-item-icon {
-    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-    color: white;
-}
-
-.function-menu-item[data-action="pwaManage"] .function-menu-item-icon {
-    background: linear-gradient(135deg, #07c160, #4ade80);
-    color: white;
-}
-
+/* 管理命令菜单项统一样式 - 与其他图标保持一致 */
+.function-menu-item[data-action="clearChat"] .function-menu-item-icon,
+.function-menu-item[data-action="pwaManage"] .function-menu-item-icon,
 .function-menu-item[data-action="logout"] .function-menu-item-icon {
-    background: linear-gradient(135deg, #6b7280, #9ca3af);
-    color: white;
+    background: #f8f9fa;
+    color: inherit;
 }
 
-/* 管理命令菜单项悬停效果 */
-.function-menu-item[data-action="clearChat"]:hover .function-menu-item-icon {
-    background: linear-gradient(135deg, #ff5252, #ff7979);
-    transform: scale(1.05);
-}
-
-.function-menu-item[data-action="pwaManage"]:hover .function-menu-item-icon {
-    background: linear-gradient(135deg, #059652, #22c55e);
-    transform: scale(1.05);
-}
-
+/* 管理命令菜单项悬停效果 - 统一样式 */
+.function-menu-item[data-action="clearChat"]:hover .function-menu-item-icon,
+.function-menu-item[data-action="pwaManage"]:hover .function-menu-item-icon,
 .function-menu-item[data-action="logout"]:hover .function-menu-item-icon {
-    background: linear-gradient(135deg, #4b5563, #6b7280);
+    background: #f8f9fa;
     transform: scale(1.05);
 }

@@ -16,18 +16,8 @@ const FunctionMenu = {
             title: '相册',
             action: 'album'
         },
-        {
-            id: 'location',
-            icon: '📍',
-            title: '位置',
-            action: 'location'
-        },
-        {
-            id: 'voice-input',
-            icon: '🎤',
-            title: '语音输入',
-            action: 'voiceInput'
-        },
+
+
         {
             id: 'emoji',
             icon: '😊',
@@ -46,12 +36,7 @@ const FunctionMenu = {
             title: '搜索',
             action: 'search'
         },
-        {
-            id: 'favorite',
-            icon: '⭐',
-            title: '收藏',
-            action: 'favorite'
-        },
+
         {
             id: 'ai-chat',
             icon: '🤖',
@@ -191,12 +176,8 @@ const FunctionMenu = {
             case 'album':
                 this.handleAlbum();
                 break;
-            case 'location':
-                this.handleLocation();
-                break;
-            case 'voiceInput':
-                this.handleVoiceInput();
-                break;
+
+
             case 'emoji':
                 this.handleEmoji();
                 break;
@@ -206,9 +187,7 @@ const FunctionMenu = {
             case 'search':
                 this.handleSearch();
                 break;
-            case 'favorite':
-                this.handleFavorite();
-                break;
+
             case 'aiChat':
                 this.handleAiChat();
                 break;
@@ -285,15 +264,9 @@ const FunctionMenu = {
         }
     },
 
-    // 位置功能
-    handleLocation() {
-        this.insertTextToInput('📍 [位置信息]');
-    },
 
-    // 语音输入功能
-    handleVoiceInput() {
-        this.showComingSoon('语音输入');
-    },
+
+
 
     // 表情功能
     handleEmoji() {
@@ -314,10 +287,7 @@ const FunctionMenu = {
         }
     },
 
-    // 收藏功能
-    handleFavorite() {
-        this.insertTextToInput('⭐ [收藏] 分享了一个收藏');
-    },
+
 
     // 搜索功能
     handleSearch() {
