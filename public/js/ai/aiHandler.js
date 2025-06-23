@@ -153,22 +153,27 @@ const AIHandler = {
     async showThinkingProcess() {
         const thinkingId = `thinking-${Date.now()}`;
         this.currentThinkingMessageId = thinkingId;
-        
+
         // 创建思考消息元素
         const thinkingMessage = {
             id: thinkingId,
-            type: CONFIG.MESSAGE_TYPES.AI_THINKING,
-            content: CONFIG.AI.THINKING_INDICATOR,
+            type: 'ai_thinking', // 直接使用字符串，避免CONFIG问题
+            content: '🤔 AI正在思考...',
             device_id: 'ai-system',
             timestamp: new Date().toISOString(),
             isThinking: true
         };
-        
+
         // 添加到UI
+        console.log('AIHandler: 准备添加思考消息到UI', { thinkingMessage });
         if (window.UI && typeof UI.addAIMessage === 'function') {
             UI.addAIMessage(thinkingMessage);
+        } else {
+            console.error('AIHandler: UI.addAIMessage 方法不可用');
+            // 尝试直接添加到DOM作为备用方案
+            this.addMessageDirectly(thinkingMessage);
         }
-        
+
         return thinkingId;
     },
     
@@ -191,23 +196,58 @@ const AIHandler = {
     async startAIResponse() {
         const responseId = `response-${Date.now()}`;
         this.currentResponseMessageId = responseId;
-        
+
         // 创建响应消息元素
         const responseMessage = {
             id: responseId,
-            type: CONFIG.MESSAGE_TYPES.AI_RESPONSE,
+            type: 'ai_response', // 直接使用字符串
             content: '',
             device_id: 'ai-system',
             timestamp: new Date().toISOString(),
             isAIResponse: true
         };
-        
+
         // 添加到UI
+        console.log('AIHandler: 准备添加响应消息到UI', { responseMessage });
         if (window.UI && typeof UI.addAIMessage === 'function') {
             UI.addAIMessage(responseMessage);
+        } else {
+            console.error('AIHandler: UI.addAIMessage 方法不可用');
+            // 尝试直接添加到DOM作为备用方案
+            this.addMessageDirectly(responseMessage);
         }
-        
+
         return responseId;
+    },
+
+    // 直接添加消息到DOM（备用方案）
+    addMessageDirectly(message) {
+        console.log('AIHandler: 使用备用方案直接添加消息到DOM');
+
+        const messageList = document.getElementById('messageList');
+        if (!messageList) {
+            console.error('AIHandler: 找不到messageList元素');
+            return;
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai fade-in';
+        messageDiv.dataset.messageId = message.id;
+        messageDiv.innerHTML = `
+            <div class="message-content" style="background: #1e90ff; color: white; padding: 12px; border-radius: 8px;">
+                <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">🤖 AI助手</div>
+                <div id="ai-msg-${message.id}">${message.content || '正在处理...'}</div>
+            </div>
+            <div class="message-meta">
+                <span>AI助手</span>
+                <span class="message-time">${new Date().toLocaleTimeString()}</span>
+            </div>
+        `;
+
+        messageList.appendChild(messageDiv);
+        messageList.scrollTop = messageList.scrollHeight;
+
+        console.log('AIHandler: 消息已直接添加到DOM');
     },
     
     // 更新AI响应
