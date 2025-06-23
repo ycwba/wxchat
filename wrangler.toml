@@ -17,7 +17,6 @@ database_id = "b58dde57-d777-459f-a6b3-ae4de9c16368"
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "wxchat"
-preview_bucket_name = "wxchat"
 
 # 环境变量配置（用于鉴权）
 [vars]
