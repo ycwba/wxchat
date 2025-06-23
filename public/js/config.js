@@ -30,8 +30,9 @@ const CONFIG = {
         MESSAGE_LOAD_LIMIT: 50, // 每次加载消息数量
         ANIMATION_DURATION: 100, // 动画持续时间(ms)（更快动画）
         TYPING_INDICATOR_DELAY: 1000, // 输入指示器延迟
-        LOAD_MORE_THRESHOLD: 50, // 当消息数量达到此值时显示"加载更多"按钮
-        LOAD_MORE_BATCH_SIZE: 30 // 每次"加载更多"加载的消息数量
+        LOAD_MORE_BATCH_SIZE: 30, // 每次无限滚动加载的消息数量
+        INFINITE_SCROLL_THRESHOLD: 80, // 距离顶部多少px时触发无限滚动
+        SCROLL_DEBOUNCE_DELAY: 100 // 滚动事件防抖延迟(ms)
     },
     
     // 设备配置
