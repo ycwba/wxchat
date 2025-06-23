@@ -183,6 +183,7 @@ api.get('/messages', async (c) => {
 
     console.log('📥 收到获取消息请求:', { limit, offset })
 
+    // 获取最新的消息（按时间戳降序，然后在前端重新排序）
     const stmt = DB.prepare(`
       SELECT
         m.id,
@@ -197,11 +198,11 @@ api.get('/messages', async (c) => {
       FROM messages m
       LEFT JOIN files f ON m.file_id = f.id
       ORDER BY m.timestamp DESC
-      LIMIT ? OFFSET ?
+      LIMIT ?
     `)
 
     console.log('🔍 执行数据库查询...')
-    const result = await stmt.bind(limit, offset).all()
+    const result = await stmt.bind(limit).all()
     console.log('📊 查询结果:', result)
 
     // 确保返回正确的数据结构
