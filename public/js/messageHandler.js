@@ -281,12 +281,40 @@ const MessageHandler = {
             return true;
         }
 
-        // 检查每条消息的ID和时间戳
-        for (let i = 0; i < newMessages.length; i++) {
-            const newMsg = newMessages[i];
-            const oldMsg = this.lastMessages[i];
+        // 如果没有旧消息，认为有变化
+        if (this.lastMessages.length === 0) {
+            return true;
+        }
 
-            if (!oldMsg || newMsg.id !== oldMsg.id || newMsg.timestamp !== oldMsg.timestamp) {
+        // 检查最新消息的ID（最重要的检测）
+        if (newMessages.length > 0 && this.lastMessages.length > 0) {
+            // 按时间戳排序，获取最新的消息
+            const newLatest = [...newMessages].sort((a, b) =>
+                new Date(b.timestamp) - new Date(a.timestamp)
+            )[0];
+
+            const oldLatest = [...this.lastMessages].sort((a, b) =>
+                new Date(b.timestamp) - new Date(a.timestamp)
+            )[0];
+
+            // 如果最新消息的ID不同，说明有新消息
+            if (newLatest.id !== oldLatest.id) {
+                return true;
+            }
+        }
+
+        // 检查消息ID集合是否有变化
+        const newIds = new Set(newMessages.map(msg => msg.id));
+        const oldIds = new Set(this.lastMessages.map(msg => msg.id));
+
+        // 如果ID集合大小不同，或者有新的ID，说明有变化
+        if (newIds.size !== oldIds.size) {
+            return true;
+        }
+
+        // 检查是否有新的ID
+        for (const id of newIds) {
+            if (!oldIds.has(id)) {
                 return true;
             }
         }
