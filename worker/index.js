@@ -257,22 +257,31 @@ api.post('/ai/message', async (c) => {
       }, 400)
     }
 
-    // 存储AI消息到数据库
+    // 将AI消息作为特殊的文本消息存储，在内容前添加标识符
+    let messageContent = content;
+    if (type === 'ai_response') {
+      messageContent = `[AI] ${content}`;
+    } else if (type === 'ai_thinking') {
+      messageContent = `[AI-THINKING] ${content}`;
+    }
+
+    // 存储AI消息到数据库（使用text类型）
     const stmt = DB.prepare(`
       INSERT INTO messages (type, content, device_id)
       VALUES (?, ?, ?)
     `)
 
-    const result = await stmt.bind(type, content, deviceId).run()
+    const result = await stmt.bind('text', messageContent, deviceId).run()
 
     return c.json({
       success: true,
       data: {
         id: result.meta.last_row_id,
-        type: type,
-        content: content,
+        type: 'text',
+        content: messageContent,
         device_id: deviceId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        originalType: type
       }
     })
   } catch (error) {
