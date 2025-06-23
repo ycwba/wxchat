@@ -441,7 +441,7 @@ api.post('/messages/batch-delete', async (c) => {
     // 获取要删除的文件消息关联的文件信息
     const placeholders = messageIds.map(() => '?').join(',')
     const fileStmt = DB.prepare(`
-      SELECT f.r2_key, f.file_size, f.original_name
+      SELECT f.id, f.r2_key, f.file_size, f.original_name
       FROM messages m
       LEFT JOIN files f ON m.file_id = f.id
       WHERE m.id IN (${placeholders}) AND m.type = 'file' AND f.id IS NOT NULL
@@ -461,24 +461,24 @@ api.post('/messages/batch-delete', async (c) => {
       }
     }
 
-    // 删除数据库中的文件记录
-    if (filesToDelete.results.length > 0) {
-      const deleteFilesStmt = DB.prepare(`
-        DELETE FROM files
-        WHERE id IN (
-          SELECT f.id FROM messages m
-          LEFT JOIN files f ON m.file_id = f.id
-          WHERE m.id IN (${placeholders}) AND m.type = 'file'
-        )
-      `)
-      await deleteFilesStmt.bind(...messageIds).run()
-    }
-
-    // 删除消息记录
+    // 先删除消息记录（这样就不会有外键约束问题）
     const deleteMessagesStmt = DB.prepare(`
       DELETE FROM messages WHERE id IN (${placeholders})
     `)
     const deleteResult = await deleteMessagesStmt.bind(...messageIds).run()
+
+    // 然后删除数据库中的文件记录
+    if (filesToDelete.results.length > 0) {
+      const fileIds = filesToDelete.results.map(f => f.id).filter(id => id) // 获取文件ID
+
+      if (fileIds.length > 0) {
+        const filePlaceholders = fileIds.map(() => '?').join(',')
+        const deleteFilesStmt = DB.prepare(`
+          DELETE FROM files WHERE id IN (${filePlaceholders})
+        `)
+        await deleteFilesStmt.bind(...fileIds).run()
+      }
+    }
 
     return c.json({
       success: true,
