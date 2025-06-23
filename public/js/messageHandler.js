@@ -301,19 +301,6 @@ const MessageHandler = {
             return;
         }
 
-        // 检查是否在AI模式
-        if (window.AIChatComponent && window.AIChatComponent.isInAIMode()) {
-            // 触发AI消息处理事件
-            const event = new CustomEvent('message:beforeSend', {
-                detail: { message: content }
-            });
-            document.dispatchEvent(event);
-
-            // 清空输入框
-            UI.clearInput();
-            return;
-        }
-
         // 检查是否为清理指令
         if (this.isClearCommand(content)) {
             await this.handleClearCommand();

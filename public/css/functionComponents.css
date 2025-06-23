@@ -65,7 +65,7 @@
     pointer-events: none;
 }
 
-/* 功能菜单容器 - 微信风格底部滑出 */
+/* 功能菜单容器 */
 .function-menu {
     position: fixed;
     top: 0;
@@ -74,12 +74,13 @@
     bottom: 0;
     z-index: 1000;
     display: none;
-    pointer-events: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
 .function-menu.show {
-    display: block;
-    pointer-events: auto;
+    display: flex;
 }
 
 /* 功能菜单遮罩层 */
@@ -89,67 +90,53 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: opacity 0.3s ease;
-    cursor: pointer;
 }
 
 .function-menu.show .function-menu-overlay {
     opacity: 1;
 }
 
-/* 功能菜单内容 - 底部面板 */
+/* 功能菜单内容 */
 .function-menu-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     background: white;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-    max-height: 60vh;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 100%;
+    max-height: 80vh;
     overflow: hidden;
+    position: relative;
     z-index: 1001;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .function-menu.show .function-menu-content {
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
+    opacity: 1;
 }
 
-/* 功能菜单头部 - 微信风格 */
+/* 功能菜单头部 */
 .function-menu-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 12px 24px 20px;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
     border-bottom: 1px solid #f0f0f0;
-    position: relative;
-}
-
-/* 拖拽指示器 */
-.function-menu-header::before {
-    content: '';
-    width: 36px;
-    height: 4px;
-    background: #d1d1d6;
-    border-radius: 2px;
-    margin-bottom: 16px;
 }
 
 .function-menu-header h3 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 500;
-    color: #666;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
 }
 
 .function-menu-close {
-    position: absolute;
-    top: 12px;
-    right: 16px;
     background: none;
     border: none;
     padding: 8px;
@@ -160,8 +147,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
 }
 
 .function-menu-close:hover {
@@ -169,158 +154,127 @@
     color: #333;
 }
 
-/* 功能菜单网格 - 微信风格 */
+/* 功能菜单网格 */
 .function-menu-grid {
-    padding: 24px 20px 32px;
+    padding: 16px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px 16px;
-    max-height: 50vh;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    max-height: 60vh;
     overflow-y: auto;
 }
 
-/* 功能菜单项 - 垂直布局 */
+/* 功能菜单项 */
 .function-menu-item {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 12px 8px;
+    padding: 16px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-radius: 8px;
-    min-height: 80px;
-    justify-content: center;
+    border: 1px solid transparent;
 }
 
 .function-menu-item:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    transform: translateY(-1px);
 }
 
 .function-menu-item:active {
-    background: rgba(0, 0, 0, 0.1);
-    transform: scale(0.95);
+    transform: translateY(0);
+    background: #e9ecef;
 }
 
-/* 功能菜单项图标 - 微信风格 */
+/* 功能菜单项图标 */
 .function-menu-item-icon {
-    font-size: 28px;
-    margin-bottom: 8px;
+    font-size: 24px;
+    margin-right: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: 10px;
     flex-shrink: 0;
-    transition: all 0.2s ease;
-}
-
-.function-menu-item:hover .function-menu-item-icon {
-    transform: scale(1.05);
 }
 
 /* 功能菜单项内容 */
 .function-menu-item-content {
-    text-align: center;
-    width: 100%;
+    flex: 1;
 }
 
 .function-menu-item-title {
-    font-size: 12px;
-    font-weight: 400;
+    font-size: 16px;
+    font-weight: 500;
     color: #333;
-    line-height: 1.2;
-    margin: 0;
+    margin-bottom: 4px;
 }
 
 .function-menu-item-description {
-    display: none; /* 微信风格不显示描述 */
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
 }
 
-/* 响应式设计 - 微信风格 */
+/* 响应式设计 */
 @media (max-width: 480px) {
-    .function-menu-grid {
-        padding: 20px 16px 28px;
-        gap: 20px 12px;
-        grid-template-columns: repeat(4, 1fr);
+    .function-menu {
+        padding: 16px;
     }
-
-    .function-menu-item {
-        padding: 8px 4px;
-        min-height: 72px;
+    
+    .function-menu-content {
+        max-width: none;
+        width: 100%;
+        border-radius: 12px;
     }
-
-    .function-menu-item-icon {
-        font-size: 24px;
-        width: 44px;
-        height: 44px;
-        margin-bottom: 6px;
-    }
-
-    .function-menu-item-title {
-        font-size: 11px;
-    }
-
+    
     .function-menu-header {
-        padding: 10px 20px 16px;
+        padding: 16px 20px 12px;
     }
-
+    
     .function-menu-header h3 {
+        font-size: 16px;
+    }
+    
+    .function-menu-grid {
+        padding: 12px;
+    }
+    
+    .function-menu-item {
+        padding: 12px;
+    }
+    
+    .function-menu-item-icon {
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        margin-right: 12px;
+    }
+    
+    .function-menu-item-title {
         font-size: 15px;
     }
-}
-
-/* 大屏幕适配 */
-@media (min-width: 768px) {
-    .function-menu-grid {
-        grid-template-columns: repeat(6, 1fr);
-        padding: 32px 40px 40px;
-        gap: 32px 20px;
-    }
-
-    .function-menu-item {
-        min-height: 90px;
-        padding: 16px 12px;
-    }
-
-    .function-menu-item-icon {
-        width: 52px;
-        height: 52px;
-        font-size: 30px;
-        margin-bottom: 10px;
-    }
-
-    .function-menu-item-title {
+    
+    .function-menu-item-description {
         font-size: 13px;
     }
 }
 
-/* 动画增强 - 底部滑出效果 */
+/* 动画增强 */
 .function-menu.animate-in .function-menu-content {
-    animation: menuSlideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: menuSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-@keyframes menuSlideUp {
+@keyframes menuSlideIn {
     0% {
-        transform: translateY(100%);
+        transform: scale(0.8) translateY(20px);
+        opacity: 0;
     }
     100% {
-        transform: translateY(0);
-    }
-}
-
-/* 关闭动画 */
-.function-menu.animate-out .function-menu-content {
-    animation: menuSlideDown 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-@keyframes menuSlideDown {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(100%);
+        transform: scale(1) translateY(0);
+        opacity: 1;
     }
 }
 

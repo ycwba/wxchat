@@ -605,96 +605,6 @@ api.get('/poll', async (c) => {
   }
 })
 
-// AI API路由
-const aiApi = new Hono()
-
-// AI聊天完成接口
-aiApi.post('/chat/completions', async (c) => {
-  try {
-    // 验证环境变量
-    const apiKey = c.env.SILICONFLOW_API_KEY
-    if (!apiKey) {
-      return c.json({
-        error: 'AI服务配置错误',
-        message: 'SILICONFLOW_API_KEY 环境变量未设置'
-      }, 500)
-    }
-
-    // 获取请求体
-    const requestBody = await c.req.json()
-
-    // 构建发送到硅基流动的请求
-    const aiRequest = {
-      model: 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B',
-      messages: requestBody.messages,
-      stream: requestBody.stream !== false,
-      max_tokens: Math.min(requestBody.max_tokens || 2048, 4096),
-      temperature: Math.max(0, Math.min(requestBody.temperature || 0.7, 2)),
-      top_p: Math.max(0, Math.min(requestBody.top_p || 0.7, 1)),
-      enable_thinking: requestBody.enable_thinking !== false,
-      thinking_budget: Math.min(requestBody.thinking_budget || 4096, 8192),
-      response_format: { type: 'text' }
-    }
-
-    // 发送请求到硅基流动API
-    const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(aiRequest)
-    })
-
-    if (!response.ok) {
-      const errorData = await response.text()
-      console.error('硅基流动API错误:', response.status, errorData)
-
-      return c.json({
-        error: 'AI服务请求失败',
-        message: `API返回错误: ${response.status}`
-      }, response.status)
-    }
-
-    // 处理流式响应
-    if (aiRequest.stream) {
-      const headers = new Headers({
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      })
-
-      return new Response(response.body, { headers })
-    } else {
-      const data = await response.json()
-      return c.json(data)
-    }
-
-  } catch (error) {
-    console.error('AI API处理错误:', error)
-    return c.json({
-      error: '服务器内部错误',
-      message: error.message
-    }, 500)
-  }
-})
-
-// AI服务状态接口
-aiApi.get('/status', async (c) => {
-  const hasApiKey = !!c.env.SILICONFLOW_API_KEY
-
-  return c.json({
-    status: 'ok',
-    service: 'SiliconFlow AI',
-    model: 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B',
-    configured: hasApiKey,
-    timestamp: new Date().toISOString()
-  })
-})
-
 // 挂载鉴权API路由（无需认证）
 app.route('/api/auth', authApi)
 
@@ -703,7 +613,6 @@ app.use('*', authMiddleware)
 
 // 挂载API路由（需要认证）
 app.route('/api', api)
-app.route('/api/ai', aiApi)
 
 // 静态文件服务 - 使用getAssetFromKV
 app.get('*', async (c) => {
