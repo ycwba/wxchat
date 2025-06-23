@@ -20,6 +20,7 @@ const UI = {
             messageForm: document.getElementById('messageForm'),
             messageText: document.getElementById('messageText'),
             sendButton: document.getElementById('sendButton'),
+            functionButton: document.getElementById('functionButton'),
             fileInput: document.getElementById('fileInput'),
             uploadStatus: document.getElementById('uploadStatus'),
             progressBar: document.getElementById('progressBar'),
@@ -420,10 +421,32 @@ const UI = {
         }
     },
 
-    // 检查输入内容并切换发送按钮显示
+    // 显示/隐藏功能按钮 - 微信风格
+    toggleFunctionButton(show) {
+        if (this.elements.functionButton) {
+            if (show) {
+                this.elements.functionButton.classList.remove('hide');
+                this.elements.functionButton.classList.add('show');
+            } else {
+                this.elements.functionButton.classList.remove('show');
+                this.elements.functionButton.classList.add('hide');
+            }
+        }
+    },
+
+    // 检查输入内容并切换按钮显示 - 动态切换逻辑
     checkInputAndToggleSendButton() {
         const hasContent = this.getInputValue().length > 0;
+
+        // 微信风格：有内容时显示发送按钮，隐藏功能按钮
+        // 无内容时显示功能按钮，隐藏发送按钮
         this.toggleSendButton(hasContent);
+        this.toggleFunctionButton(!hasContent);
+
+        // 如果有功能按钮组件，也通知它更新状态
+        if (window.FunctionButton && typeof window.FunctionButton.updateVisibility === 'function') {
+            window.FunctionButton.updateVisibility();
+        }
     },
     
 
