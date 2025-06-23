@@ -181,7 +181,6 @@ api.get('/messages', async (c) => {
     const limit = c.req.query('limit') || 50
     const offset = c.req.query('offset') || 0
 
-    // 获取所有消息（按时间戳降序，然后在前端重新排序）
     const stmt = DB.prepare(`
       SELECT
         m.id,
@@ -200,13 +199,10 @@ api.get('/messages', async (c) => {
 
     const result = await stmt.all()
 
-    // 确保返回正确的数据结构
-    const messages = result.results || []
-
     return c.json({
       success: true,
-      data: messages,
-      total: messages.length
+      data: result.results,
+      total: result.results.length
     })
   } catch (error) {
     return c.json({

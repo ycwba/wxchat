@@ -100,7 +100,6 @@ const MessageHandler = {
 
             // 总是更新UI，即使没有变化（首次加载时需要显示最终状态）
             const isFirstLoad = this.lastMessages.length === 0;
-
             if (hasChanges || forceScroll || isFirstLoad) {
                 // 智能滚动逻辑：
                 // 1. 强制滚动时总是滚动
@@ -123,7 +122,7 @@ const MessageHandler = {
             }
 
         } catch (error) {
-            console.error('💥 加载消息失败:', error);
+            console.error('加载消息失败:', error);
 
             // 如果是首次加载失败，静默处理，显示空状态
             if (this.lastMessages.length === 0) {
@@ -281,24 +280,12 @@ const MessageHandler = {
             return true;
         }
 
-        // 如果没有旧消息，认为有变化
-        if (this.lastMessages.length === 0) {
-            return true;
-        }
+        // 检查每条消息的ID和时间戳
+        for (let i = 0; i < newMessages.length; i++) {
+            const newMsg = newMessages[i];
+            const oldMsg = this.lastMessages[i];
 
-        // 简单检查：比较最新消息的ID
-        if (newMessages.length > 0 && this.lastMessages.length > 0) {
-            // 按时间戳排序，获取最新的消息
-            const newLatest = [...newMessages].sort((a, b) =>
-                new Date(b.timestamp) - new Date(a.timestamp)
-            )[0];
-
-            const oldLatest = [...this.lastMessages].sort((a, b) =>
-                new Date(b.timestamp) - new Date(a.timestamp)
-            )[0];
-
-            // 如果最新消息的ID不同，说明有新消息
-            if (newLatest.id !== oldLatest.id) {
+            if (!oldMsg || newMsg.id !== oldMsg.id || newMsg.timestamp !== oldMsg.timestamp) {
                 return true;
             }
         }
@@ -345,10 +332,18 @@ const MessageHandler = {
             // 立即重新加载消息（发送消息后强制滚动到底部）
             await this.loadMessages(true);
 
-            // 延迟加载，确保消息显示
+            // 多次延迟加载，确保消息显示
             setTimeout(async () => {
                 await this.loadMessages(true);
-            }, 500);
+            }, 200);
+
+            setTimeout(async () => {
+                await this.loadMessages(true);
+            }, 800);
+
+            setTimeout(async () => {
+                await this.loadMessages(true);
+            }, 1500);
 
             UI.showSuccess(CONFIG.SUCCESS.MESSAGE_SENT);
             UI.setConnectionStatus('connected');

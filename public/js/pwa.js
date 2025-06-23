@@ -16,22 +16,19 @@ class PWAManager {
         try {
             // 检查PWA支持
             await this.checkPWASupport();
-
-            // 清除API缓存，确保获取最新数据
-            await this.clearApiCache();
-
+            
             // 注册Service Worker
             await this.registerServiceWorker();
-
+            
             // 设置事件监听器
             this.setupEventListeners();
-
+            
             // 检查安装状态
             this.checkInstallStatus();
-
+            
             // 显示安装提示
             this.setupInstallPrompt();
-
+            
             console.log('✅ PWA功能初始化完成');
         } catch (error) {
             console.error('❌ PWA初始化失败:', error);
@@ -306,30 +303,6 @@ class PWAManager {
         }
     }
     
-    // 清理API缓存
-    async clearApiCache() {
-        if (!('caches' in window)) {
-            return;
-        }
-
-        try {
-            const cacheNames = await caches.keys();
-
-            // 只清理动态缓存（包含API请求）
-            const apiCacheNames = cacheNames.filter(name =>
-                name.includes('dynamic') || name.includes('api')
-            );
-
-            await Promise.all(apiCacheNames.map(name => caches.delete(name)));
-
-            if (apiCacheNames.length > 0) {
-                console.log('🗑️ API缓存已清理:', apiCacheNames);
-            }
-        } catch (error) {
-            console.error('清理API缓存失败:', error);
-        }
-    }
-
     // 清理缓存
     async clearCache() {
         if (!('caches' in window)) {

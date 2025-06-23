@@ -76,16 +76,14 @@ const API = {
             });
 
             if (response && response.success) {
-                const messages = response.data || [];
-                console.log('✅ 获取到消息:', messages.length, '条');
-                return messages;
+                return response.data || [];
             } else {
-                console.error('❌ API返回失败:', response);
                 throw new Error(response?.error || CONFIG.ERRORS.LOAD_MESSAGES_FAILED);
             }
         } catch (error) {
-            console.error('💥 获取消息失败:', error);
+            console.error('获取消息失败:', error);
             // 静默处理所有错误，返回空数组，让UI显示空状态
+            console.log('API错误，返回空消息列表以避免显示加载状态');
             return [];
         }
     },
