@@ -94,25 +94,28 @@ const AIHandler = {
             // 发送用户消息（标记为AI消息）
             await this.sendUserAIMessage(cleanContent);
 
-            // 显示思考过程（临时前端显示）
-            const thinkingElement = this.addMessageDirectly({
-                id: `thinking-${Date.now()}`,
-                type: 'ai_thinking',
-                content: '🤔 AI正在思考...',
-                device_id: 'ai-system',
-                timestamp: new Date().toISOString(),
-                isThinking: true
+            // 创建流式显示的AI响应元素
+            const streamingElement = this.createStreamingAIMessage();
+
+            // 调用AI API，实现真正的流式显示
+            const result = await AIAPI.streamChat(cleanContent, {
+                onResponse: (chunk, fullResponse) => {
+                    this.updateStreamingMessage(streamingElement, fullResponse);
+                }
             });
 
-            // 调用AI API
-            const result = await AIAPI.streamChat(cleanContent);
+            // 标记流式显示完成
+            this.completeStreamingMessage(streamingElement);
 
-            // 移除思考消息
-            if (thinkingElement && thinkingElement.parentNode) {
-                thinkingElement.parentNode.removeChild(thinkingElement);
+            // 等待一小会儿让用户看到完整的流式效果
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // 移除临时的流式元素
+            if (streamingElement && streamingElement.parentNode) {
+                streamingElement.parentNode.removeChild(streamingElement);
             }
 
-            // 直接存储最终的AI响应到数据库
+            // 存储最终的AI响应到数据库，触发SSE推送显示持久化消息
             await this.storeAIResponse(result.response || '抱歉，我无法生成回答。');
 
             console.log('AIHandler: AI消息处理完成');
@@ -291,6 +294,109 @@ const AIHandler = {
                 isAIResponse: true
             });
         }
+    },
+
+    // 创建流式显示的AI消息元素
+    createStreamingAIMessage() {
+        console.log('AIHandler: 创建流式AI消息元素');
+
+        const messageList = document.getElementById('messageList');
+        if (!messageList) {
+            console.error('AIHandler: 找不到messageList元素');
+            return null;
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai fade-in streaming';
+        messageDiv.dataset.messageId = `streaming-${Date.now()}`;
+        messageDiv.innerHTML = `
+            <div class="message-content" style="background: linear-gradient(135deg, #1e90ff, #4169e1); color: white; padding: 12px; border-radius: 8px; position: relative;">
+                <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">🤖 AI助手 (实时回复中...)</div>
+                <div class="streaming-content" style="min-height: 20px; line-height: 1.5;">
+                    <span class="typing-cursor" style="animation: blink 1s infinite;">▋</span>
+                </div>
+            </div>
+            <div class="message-meta">
+                <span>AI助手</span>
+                <span class="message-time">${new Date().toLocaleTimeString()}</span>
+            </div>
+        `;
+
+        // 添加打字动画样式
+        if (!document.getElementById('streaming-styles')) {
+            const style = document.createElement('style');
+            style.id = 'streaming-styles';
+            style.textContent = `
+                @keyframes blink {
+                    0%, 50% { opacity: 1; }
+                    51%, 100% { opacity: 0.3; }
+                }
+                .streaming-content {
+                    word-wrap: break-word;
+                    white-space: pre-wrap;
+                }
+                .typing-cursor {
+                    color: rgba(255, 255, 255, 0.8);
+                    font-weight: bold;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        messageList.appendChild(messageDiv);
+        messageList.scrollTop = messageList.scrollHeight;
+
+        console.log('AIHandler: 流式消息元素已创建');
+        return messageDiv;
+    },
+
+    // 更新流式消息内容
+    updateStreamingMessage(element, content) {
+        if (!element) return;
+
+        const contentDiv = element.querySelector('.streaming-content');
+        if (contentDiv) {
+            // 移除打字光标
+            const cursor = contentDiv.querySelector('.typing-cursor');
+            if (cursor) cursor.remove();
+
+            // 更新内容
+            contentDiv.textContent = content;
+
+            // 重新添加打字光标
+            const newCursor = document.createElement('span');
+            newCursor.className = 'typing-cursor';
+            newCursor.style.animation = 'blink 1s infinite';
+            newCursor.textContent = '▋';
+            contentDiv.appendChild(newCursor);
+
+            // 滚动到底部
+            const messageList = document.getElementById('messageList');
+            if (messageList) {
+                messageList.scrollTop = messageList.scrollHeight;
+            }
+        }
+    },
+
+    // 完成流式消息
+    completeStreamingMessage(element) {
+        if (!element) return;
+
+        console.log('AIHandler: 流式消息完成');
+
+        // 移除打字光标
+        const cursor = element.querySelector('.typing-cursor');
+        if (cursor) cursor.remove();
+
+        // 更新标题
+        const header = element.querySelector('.message-content > div:first-child');
+        if (header) {
+            header.textContent = '🤖 AI助手 (回复完成)';
+            header.style.opacity = '0.6';
+        }
+
+        // 添加完成标识
+        element.classList.add('completed');
     },
 
     // 直接添加消息到DOM（备用方案）
