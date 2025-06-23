@@ -43,12 +43,16 @@ const SearchAPI = {
             params.append('offset', filters.offset || 0);
 
             // 发送搜索请求
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            // 添加认证头
+            const authHeaders = Auth ? Auth.addAuthHeader(headers) : headers;
+            
             const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.SEARCH}?${params}`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                }
+                headers: authHeaders
             });
 
             if (!response.ok) {
@@ -82,12 +86,16 @@ const SearchAPI = {
                 return { success: true, data: [] };
             }
 
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            // 添加认证头
+            const authHeaders = Auth ? Auth.addAuthHeader(headers) : headers;
+            
             const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.SEARCH_SUGGESTIONS}?q=${encodeURIComponent(query)}`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                }
+                headers: authHeaders
             });
 
             if (!response.ok) {
