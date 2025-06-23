@@ -28,17 +28,26 @@ const AIUI = {
     
     // 创建AI消息元素
     createAIMessageElement(message) {
+        console.log('AIUI: 创建AI消息元素', { message });
+
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message ai fade-in';
         messageDiv.dataset.messageId = message.id;
         messageDiv.dataset.timestamp = message.timestamp;
-        
+
+        let content = '';
         if (message.type === CONFIG.MESSAGE_TYPES.AI_THINKING) {
-            messageDiv.innerHTML = this.renderThinkingMessage(message);
+            content = this.renderThinkingMessage(message);
         } else if (message.type === CONFIG.MESSAGE_TYPES.AI_RESPONSE) {
-            messageDiv.innerHTML = this.renderResponseMessage(message);
+            content = this.renderResponseMessage(message);
+        } else {
+            // 降级处理：渲染为普通AI消息
+            content = this.renderSimpleAIMessage(message);
         }
-        
+
+        messageDiv.innerHTML = content;
+        console.log('AIUI: AI消息元素创建完成', { messageId: message.id, content });
+
         return messageDiv;
     },
     
@@ -73,32 +82,32 @@ const AIUI = {
         const time = Utils.formatTime(message.timestamp);
         const hasMarkdown = Utils.markdown && Utils.markdown.hasMarkdownSyntax(message.content);
         const messageId = `ai-msg-${message.id}`;
-        
+
         // 处理内容渲染
-        let displayContent = message.content;
-        if (hasMarkdown && Utils.markdown) {
-            displayContent = Utils.markdown.renderToHtml(message.content);
+        let displayContent = message.content || '';
+        if (hasMarkdown && Utils.markdown && displayContent) {
+            displayContent = Utils.markdown.renderToHtml(displayContent);
         } else {
-            displayContent = this.escapeHtml(message.content);
+            displayContent = this.escapeHtml(displayContent);
         }
-        
+
         const textMessageClass = hasMarkdown ? 'text-message markdown-rendered' : 'text-message';
-        const toggleButton = hasMarkdown
+        const toggleButton = hasMarkdown && displayContent
             ? `<button class="markdown-toggle" onclick="AIUI.toggleMarkdownView('${messageId}')" title="切换源码/渲染视图">📝</button>`
             : '';
-        
+
         // 添加AI响应特有的样式和标识
         const aiIndicator = message.isError ? '❌' : '🤖';
-        const typingIndicator = message.content ? '' : '<span class="ai-typing-indicator">▋</span>';
-        
+        const typingIndicator = !displayContent ? '<span class="ai-typing-indicator">▋</span>' : '';
+
         return `
             <div class="message-content ai-response-message">
                 <div class="ai-response-header">
                     <span class="ai-response-indicator">${aiIndicator} ${CONFIG.AI.RESPONSE_INDICATOR}</span>
                 </div>
-                <div class="${textMessageClass}" id="${messageId}" 
-                     data-original="${this.escapeHtml(message.content)}" 
-                     data-rendered="${displayContent.replace(/"/g, '&quot;')}" 
+                <div class="${textMessageClass}" id="${messageId}"
+                     data-original="${this.escapeHtml(message.content || '')}"
+                     data-rendered="${displayContent.replace(/"/g, '&quot;')}"
                      data-is-rendered="${hasMarkdown ? 'true' : 'false'}">
                     ${displayContent}${typingIndicator}${toggleButton}
                 </div>
@@ -109,7 +118,28 @@ const AIUI = {
             </div>
         `;
     },
-    
+
+    // 渲染简单AI消息（降级处理）
+    renderSimpleAIMessage(message) {
+        const time = Utils.formatTime(message.timestamp);
+        const content = this.escapeHtml(message.content || '');
+
+        return `
+            <div class="message-content ai-response-message">
+                <div class="ai-response-header">
+                    <span class="ai-response-indicator">🤖 ${CONFIG.AI.RESPONSE_INDICATOR}</span>
+                </div>
+                <div class="text-message">
+                    ${content}
+                </div>
+            </div>
+            <div class="message-meta">
+                <span>${CONFIG.AI.RESPONSE_INDICATOR}</span>
+                <span class="message-time">${time}</span>
+            </div>
+        `;
+    },
+
     // 更新思考过程内容
     updateThinkingContent(thinkingId, thinking) {
         const thinkingElement = document.getElementById(`thinking-content-${thinkingId}`);
@@ -123,52 +153,78 @@ const AIUI = {
     
     // 更新AI响应内容
     updateResponseContent(responseId, chunk, fullResponse) {
-        const responseElement = document.getElementById(`ai-msg-${responseId}`);
+        console.log('AIUI: 更新AI响应内容', { responseId, chunkLength: chunk?.length, fullLength: fullResponse?.length });
+
+        // 尝试多种方式查找响应元素
+        let responseElement = document.getElementById(`ai-msg-${responseId}`);
+        if (!responseElement) {
+            responseElement = document.querySelector(`[data-message-id="${responseId}"] .text-message`);
+        }
+        if (!responseElement) {
+            responseElement = document.querySelector(`[data-message-id="${responseId}"] .ai-response-message .text-message`);
+        }
+
         if (responseElement) {
+            console.log('AIUI: 找到响应元素，开始更新内容');
+
             // 移除打字指示器
             const typingIndicator = responseElement.querySelector('.ai-typing-indicator');
             if (typingIndicator) {
                 typingIndicator.remove();
             }
-            
+
             // 更新内容
             const hasMarkdown = Utils.markdown && Utils.markdown.hasMarkdownSyntax(fullResponse);
             let displayContent = fullResponse;
-            
+
             if (hasMarkdown && Utils.markdown) {
                 displayContent = Utils.markdown.renderToHtml(fullResponse);
                 responseElement.classList.add('markdown-rendered');
             } else {
                 displayContent = this.escapeHtml(fullResponse);
             }
-            
+
             // 更新显示内容
             responseElement.innerHTML = displayContent;
-            
+
             // 添加打字指示器（如果还在输入中）
             if (chunk) {
                 responseElement.innerHTML += '<span class="ai-typing-indicator">▋</span>';
             }
-            
+
             // 滚动到底部
             this.scrollToBottom();
+        } else {
+            console.warn('AIUI: 未找到响应元素', { responseId });
         }
     },
     
     // 完成AI响应
     completeResponse(responseId, finalContent) {
-        const responseElement = document.getElementById(`ai-msg-${responseId}`);
+        console.log('AIUI: 完成AI响应', { responseId, contentLength: finalContent?.length || 0 });
+
+        // 尝试多种方式查找响应元素
+        let responseElement = document.getElementById(`ai-msg-${responseId}`);
+        if (!responseElement) {
+            responseElement = document.querySelector(`[data-message-id="${responseId}"] .text-message`);
+        }
+        if (!responseElement) {
+            responseElement = document.querySelector(`[data-message-id="${responseId}"]`);
+        }
+
         if (responseElement) {
             // 移除打字指示器
             const typingIndicator = responseElement.querySelector('.ai-typing-indicator');
             if (typingIndicator) {
                 typingIndicator.remove();
             }
-            
+
             // 添加完成标识
             responseElement.classList.add('ai-response-complete');
-            
-            console.log('AIUI: AI响应完成', { responseId, contentLength: finalContent?.length || 0 });
+
+            console.log('AIUI: AI响应完成处理成功');
+        } else {
+            console.warn('AIUI: 未找到响应元素进行完成处理', { responseId });
         }
     },
     
