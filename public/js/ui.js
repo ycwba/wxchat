@@ -135,30 +135,17 @@ const UI = {
             if (!this.messageCache.has(message.id)) {
                 const messageElement = this.createMessageElement(message, currentDeviceId);
 
-                // 找到正确的插入位置
-                const insertPosition = this.findInsertPosition(message, messages, index);
-
-                if (insertPosition === null) {
-                    // 添加到fragment，稍后一次性插入
-                    fragment.appendChild(messageElement);
-                } else {
-                    // 直接插入到指定位置
-                    messageContainer.insertBefore(messageElement, insertPosition);
-                }
+                // 新消息直接添加到fragment，保持数据库排序
+                fragment.appendChild(messageElement);
 
                 this.messageCache.set(message.id, messageElement);
                 newElements.push(messageElement);
             }
         });
 
-        // 一次性添加所有新消息到顶部加载指示器之后
-        const topIndicator = messageContainer.querySelector('.top-loading-indicator');
+        // 一次性添加所有新消息到末尾（保持时间顺序）
         if (fragment.children.length > 0) {
-            if (topIndicator) {
-                messageContainer.insertBefore(fragment, topIndicator.nextSibling);
-            } else {
-                messageContainer.appendChild(fragment);
-            }
+            messageContainer.appendChild(fragment);
         }
 
         // 处理需要加载图片的消息
