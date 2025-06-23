@@ -181,6 +181,8 @@ api.get('/messages', async (c) => {
     const limit = c.req.query('limit') || 50
     const offset = c.req.query('offset') || 0
 
+    console.log('📥 收到获取消息请求:', { limit, offset })
+
     const stmt = DB.prepare(`
       SELECT
         m.id,
@@ -198,10 +200,13 @@ api.get('/messages', async (c) => {
       LIMIT ? OFFSET ?
     `)
 
+    console.log('🔍 执行数据库查询...')
     const result = await stmt.bind(limit, offset).all()
+    console.log('📊 查询结果:', result)
 
     // 确保返回正确的数据结构
     const messages = result.results || []
+    console.log('✅ 返回消息数量:', messages.length)
 
     return c.json({
       success: true,
@@ -209,6 +214,7 @@ api.get('/messages', async (c) => {
       total: messages.length
     })
   } catch (error) {
+    console.error('💥 获取消息失败:', error)
     return c.json({
       success: false,
       error: error.message
@@ -222,7 +228,10 @@ api.post('/messages', async (c) => {
     const { DB } = c.env
     const { content, deviceId } = await c.req.json()
 
+    console.log('📝 收到发送消息请求:', { content, deviceId })
+
     if (!content || !deviceId) {
+      console.log('❌ 参数验证失败')
       return c.json({
         success: false,
         error: '内容和设备ID不能为空'
@@ -234,13 +243,21 @@ api.post('/messages', async (c) => {
       VALUES (?, ?, ?)
     `)
 
+    console.log('💾 准备插入消息到数据库...')
     const result = await stmt.bind('text', content, deviceId).run()
+    console.log('✅ 消息插入成功:', result.meta)
+
+    // 验证插入是否成功
+    const verifyStmt = DB.prepare('SELECT COUNT(*) as count FROM messages')
+    const countResult = await verifyStmt.first()
+    console.log('📊 当前消息总数:', countResult.count)
 
     return c.json({
       success: true,
       data: { id: result.meta.last_row_id }
     })
   } catch (error) {
+    console.error('💥 发送消息失败:', error)
     return c.json({
       success: false,
       error: error.message

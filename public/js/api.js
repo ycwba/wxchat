@@ -70,18 +70,14 @@ const API = {
     // 获取消息列表
     async getMessages(limit = CONFIG.UI.MESSAGE_LOAD_LIMIT, offset = 0) {
         try {
-            console.log('🔄 正在获取消息...', { limit, offset });
             const response = await this.get(CONFIG.API.ENDPOINTS.MESSAGES, {
                 limit,
                 offset
             });
 
-            console.log('📥 API响应:', response);
-
             if (response && response.success) {
                 const messages = response.data || [];
                 console.log('✅ 获取到消息:', messages.length, '条');
-                console.log('📋 消息详情:', messages);
                 return messages;
             } else {
                 console.error('❌ API返回失败:', response);
@@ -90,7 +86,6 @@ const API = {
         } catch (error) {
             console.error('💥 获取消息失败:', error);
             // 静默处理所有错误，返回空数组，让UI显示空状态
-            console.log('🔄 API错误，返回空消息列表以避免显示加载状态');
             return [];
         }
     },
