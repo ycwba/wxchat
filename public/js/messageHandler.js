@@ -286,7 +286,7 @@ const MessageHandler = {
             return true;
         }
 
-        // 检查最新消息的ID（最重要的检测）
+        // 简单检查：比较最新消息的ID
         if (newMessages.length > 0 && this.lastMessages.length > 0) {
             // 按时间戳排序，获取最新的消息
             const newLatest = [...newMessages].sort((a, b) =>
@@ -299,22 +299,6 @@ const MessageHandler = {
 
             // 如果最新消息的ID不同，说明有新消息
             if (newLatest.id !== oldLatest.id) {
-                return true;
-            }
-        }
-
-        // 检查消息ID集合是否有变化
-        const newIds = new Set(newMessages.map(msg => msg.id));
-        const oldIds = new Set(this.lastMessages.map(msg => msg.id));
-
-        // 如果ID集合大小不同，或者有新的ID，说明有变化
-        if (newIds.size !== oldIds.size) {
-            return true;
-        }
-
-        // 检查是否有新的ID
-        for (const id of newIds) {
-            if (!oldIds.has(id)) {
                 return true;
             }
         }
