@@ -379,7 +379,6 @@ const MessageHandler = {
 
     // 处理AI消息
     async handleAIMessage(content) {
-        console.log('MessageHandler: 处理AI消息', { content });
 
         // 清空输入框
         UI.clearInput();

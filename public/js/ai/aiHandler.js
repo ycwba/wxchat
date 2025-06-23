@@ -86,7 +86,6 @@ const AIHandler = {
         this.isProcessing = true;
         
         try {
-            console.log('AIHandler: 开始处理AI消息', { content });
 
             // 清理消息内容（移除AI标识符）
             const cleanContent = this.cleanAIMessage(content);
@@ -118,7 +117,7 @@ const AIHandler = {
             // 存储最终的AI响应到数据库，触发SSE推送显示持久化消息
             await this.storeAIResponse(result.response || '抱歉，我无法生成回答。');
 
-            console.log('AIHandler: AI消息处理完成');
+
 
         } catch (error) {
             console.error('AIHandler: AI消息处理失败', error);
@@ -266,12 +265,10 @@ const AIHandler = {
     // 存储AI响应到数据库
     async storeAIResponse(content) {
         try {
-            console.log('AIHandler: 存储AI响应到数据库', { content });
 
             // 使用API模块的sendAIMessage方法
             if (window.API && typeof API.sendAIMessage === 'function') {
                 const result = await API.sendAIMessage(content, 'ai-system', 'ai_response');
-                console.log('AIHandler: AI响应已存储到数据库', result);
 
                 // 触发消息刷新，显示新的AI响应
                 if (window.MessageHandler && typeof MessageHandler.loadMessages === 'function') {
@@ -298,7 +295,6 @@ const AIHandler = {
 
     // 创建流式显示的AI消息元素
     createStreamingAIMessage() {
-        console.log('AIHandler: 创建流式AI消息元素');
 
         const messageList = document.getElementById('messageList');
         if (!messageList) {
@@ -346,7 +342,7 @@ const AIHandler = {
         messageList.appendChild(messageDiv);
         messageList.scrollTop = messageList.scrollHeight;
 
-        console.log('AIHandler: 流式消息元素已创建');
+
         return messageDiv;
     },
 
@@ -382,8 +378,6 @@ const AIHandler = {
     completeStreamingMessage(element) {
         if (!element) return;
 
-        console.log('AIHandler: 流式消息完成');
-
         // 移除打字光标
         const cursor = element.querySelector('.typing-cursor');
         if (cursor) cursor.remove();
@@ -401,7 +395,6 @@ const AIHandler = {
 
     // 直接添加消息到DOM（备用方案）
     addMessageDirectly(message) {
-        console.log('AIHandler: 使用备用方案直接添加消息到DOM');
 
         const messageList = document.getElementById('messageList');
         if (!messageList) {
@@ -426,7 +419,7 @@ const AIHandler = {
         messageList.appendChild(messageDiv);
         messageList.scrollTop = messageList.scrollHeight;
 
-        console.log('AIHandler: 消息已直接添加到DOM');
+
         return messageDiv;
     },
     

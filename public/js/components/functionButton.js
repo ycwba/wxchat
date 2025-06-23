@@ -115,7 +115,6 @@ const FunctionButton = {
         }
 
         const hasContent = messageText.value.trim().length > 0;
-        console.log('FunctionButton: 更新可见性，有内容:', hasContent, '内容:', messageText.value);
 
         if (hasContent) {
             this.hide();
@@ -126,11 +125,9 @@ const FunctionButton = {
 
     // 切换菜单显示状态
     toggleMenu() {
-        console.log('FunctionButton: 切换菜单状态，当前状态:', this.isMenuOpen);
 
         // 确保功能菜单已初始化
         if (!this.elements.functionMenu && window.FunctionMenu) {
-            console.log('FunctionButton: 功能菜单未找到，尝试重新获取');
             this.elements.functionMenu = document.getElementById('functionMenu');
         }
 
@@ -143,23 +140,18 @@ const FunctionButton = {
 
     // 显示功能菜单
     showMenu() {
-        console.log('FunctionButton: 尝试显示菜单');
-
         // 如果菜单元素不存在，先初始化菜单
         if (!this.elements.functionMenu && window.FunctionMenu) {
-            console.log('FunctionButton: 初始化功能菜单');
             window.FunctionMenu.init();
             this.elements.functionMenu = document.getElementById('functionMenu');
         }
 
         if (!this.elements.functionMenu) {
-            console.error('FunctionButton: 无法显示菜单，菜单元素不存在');
             return;
         }
 
         if (this.isMenuOpen) return;
 
-        console.log('FunctionButton: 显示菜单');
         this.isMenuOpen = true;
         this.elements.functionMenu.classList.add('show');
 

@@ -110,8 +110,6 @@ const API = {
     // 发送AI消息
     async sendAIMessage(content, deviceId = 'ai-system', type = 'ai_response') {
         try {
-            console.log('API: 发送AI消息', { content, deviceId, type });
-
             const response = await this.post('/api/ai/message', {
                 content,
                 deviceId,
@@ -119,13 +117,11 @@ const API = {
             });
 
             if (response && response.success) {
-                console.log('API: AI消息发送成功', response);
                 return response.data;
             } else {
                 throw new Error(response?.error || 'AI消息发送失败');
             }
         } catch (error) {
-            console.error('API: AI消息发送失败', error);
             throw error;
         }
     },
