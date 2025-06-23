@@ -200,10 +200,13 @@ api.get('/messages', async (c) => {
 
     const result = await stmt.bind(limit, offset).all()
 
+    // 确保返回正确的数据结构
+    const messages = result.results || []
+
     return c.json({
       success: true,
-      data: result.results,
-      total: result.results.length
+      data: messages,
+      total: messages.length
     })
   } catch (error) {
     return c.json({

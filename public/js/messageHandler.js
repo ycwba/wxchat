@@ -85,28 +85,39 @@ const MessageHandler = {
     
     // 加载消息列表
     async loadMessages(forceScroll = false) {
+        console.log('🔄 开始加载消息, forceScroll:', forceScroll);
+
         // 防止重复请求
         if (this.isLoading) {
+            console.log('⏳ 正在加载中，跳过重复请求');
             return;
         }
 
         this.isLoading = true;
 
         try {
+            console.log('📡 调用API获取消息...');
             const messages = await API.getMessages();
+            console.log('📥 API返回消息:', messages?.length || 0, '条');
 
             // 检测消息变化
             const hasChanges = this.detectMessageChanges(messages);
+            console.log('🔍 消息是否有变化:', hasChanges);
 
             // 总是更新UI，即使没有变化（首次加载时需要显示最终状态）
             const isFirstLoad = this.lastMessages.length === 0;
+            console.log('🆕 是否首次加载:', isFirstLoad);
+
             if (hasChanges || forceScroll || isFirstLoad) {
+                console.log('✅ 需要更新UI');
+
                 // 智能滚动逻辑：
                 // 1. 强制滚动时总是滚动
                 // 2. 有新消息且用户在底部时滚动
                 // 3. 初次加载时滚动
                 const userAtBottom = UI.isAtBottom();
                 const shouldScroll = forceScroll || (hasChanges && userAtBottom) || isFirstLoad;
+                console.log('📍 用户在底部:', userAtBottom, ', 应该滚动:', shouldScroll);
 
                 UI.renderMessages(messages, shouldScroll);
 
@@ -119,20 +130,25 @@ const MessageHandler = {
 
                 // 启动或停止无限滚动监听
                 this.updateInfiniteScrollState();
+            } else {
+                console.log('🚫 无需更新UI，消息无变化');
             }
 
         } catch (error) {
-            console.error('加载消息失败:', error);
+            console.error('💥 加载消息失败:', error);
 
             // 如果是首次加载失败，静默处理，显示空状态
             if (this.lastMessages.length === 0) {
+                console.log('📭 首次加载失败，显示空状态');
                 UI.showEmpty('还没有消息，开始聊天吧！');
             } else {
                 // 非首次加载失败时才显示错误提示
+                console.log('❌ 非首次加载失败，显示错误');
                 UI.showError(error.message || CONFIG.ERRORS.LOAD_MESSAGES_FAILED);
             }
         } finally {
             this.isLoading = false;
+            console.log('✅ 消息加载完成');
         }
     },
 

@@ -78,7 +78,11 @@ const UI = {
     
     // 渲染消息列表（增量更新）
     renderMessages(messages, forceScroll = false) {
+        console.log('🎨 开始渲染消息:', messages?.length || 0, '条, forceScroll:', forceScroll);
+        console.log('📋 消息数据:', messages);
+
         if (!messages || messages.length === 0) {
+            console.log('📭 没有消息，显示空状态');
             this.showEmpty();
             this.messageCache.clear();
             return;
@@ -86,11 +90,13 @@ const UI = {
 
         // 检查用户是否在底部
         const wasAtBottom = this.isAtBottom();
+        console.log('📍 用户是否在底部:', wasAtBottom);
 
         // 按时间戳升序排序（旧消息在上，新消息在下）
         const sortedMessages = [...messages].sort((a, b) =>
             new Date(a.timestamp) - new Date(b.timestamp)
         );
+        console.log('🔄 排序后的消息:', sortedMessages.length, '条');
 
         // 确保顶部加载指示器存在
         this.ensureTopLoadingIndicator();
@@ -100,7 +106,10 @@ const UI = {
 
         // 只有在用户原本在底部或强制滚动时才滚动到底部
         if (wasAtBottom || forceScroll) {
+            console.log('⬇️ 滚动到底部');
             this.scrollToBottom();
+        } else {
+            console.log('🚫 不滚动，用户不在底部且未强制滚动');
         }
     },
 
