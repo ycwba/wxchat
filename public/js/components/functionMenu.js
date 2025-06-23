@@ -53,18 +53,28 @@ const FunctionMenu = {
 
     // 初始化菜单
     init() {
-        if (this.isInitialized) return;
-        
+        if (this.isInitialized) {
+            console.log('FunctionMenu: 已经初始化过了');
+            return;
+        }
+
+        console.log('FunctionMenu: 开始初始化');
         this.createMenuElement();
         this.bindEvents();
         this.isInitialized = true;
+        console.log('FunctionMenu: 初始化完成');
     },
 
     // 创建菜单DOM元素
     createMenuElement() {
         // 检查是否已存在
-        if (document.getElementById('functionMenu')) return;
+        const existingMenu = document.getElementById('functionMenu');
+        if (existingMenu) {
+            console.log('FunctionMenu: 菜单元素已存在');
+            return;
+        }
 
+        console.log('FunctionMenu: 创建菜单元素');
         const menuHTML = `
             <div class="function-menu" id="functionMenu">
                 <div class="function-menu-content">
@@ -86,6 +96,7 @@ const FunctionMenu = {
 
         // 插入到body中
         document.body.insertAdjacentHTML('beforeend', menuHTML);
+        console.log('FunctionMenu: 菜单元素创建完成');
     },
 
     // 生成菜单项HTML

@@ -36,17 +36,20 @@ class WeChatApp {
             UI.init();
             FileUpload.init();
 
-            // 初始化功能组件
-            if (typeof FunctionButton !== 'undefined') {
-                FunctionButton.init();
-                // 将组件暴露到全局，供UI模块使用
-                window.FunctionButton = FunctionButton;
-            }
-
+            // 初始化功能组件 - 确保在UI初始化之后
+            console.log('App: 开始初始化功能组件');
             if (typeof FunctionMenu !== 'undefined') {
+                console.log('App: 初始化功能菜单');
                 FunctionMenu.init();
                 // 将组件暴露到全局
                 window.FunctionMenu = FunctionMenu;
+            }
+
+            if (typeof FunctionButton !== 'undefined') {
+                console.log('App: 初始化功能按钮');
+                FunctionButton.init();
+                // 将组件暴露到全局，供UI模块使用
+                window.FunctionButton = FunctionButton;
             }
 
             // 初始化PWA功能
