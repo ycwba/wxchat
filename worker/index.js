@@ -393,8 +393,27 @@ api.post('/sync', async (c) => {
 // 批量删除消息
 api.post('/messages/batch-delete', async (c) => {
   try {
+    console.log('批量删除消息请求开始')
     const { DB, R2 } = c.env
+
+    if (!DB) {
+      console.error('数据库未绑定')
+      return c.json({
+        success: false,
+        error: '数据库未绑定'
+      }, 500)
+    }
+
+    if (!R2) {
+      console.error('R2存储未绑定')
+      return c.json({
+        success: false,
+        error: 'R2存储未绑定'
+      }, 500)
+    }
+
     const { messageIds, confirmCode } = await c.req.json()
+    console.log('请求参数:', { messageIds, confirmCode })
 
     if (!messageIds || !Array.isArray(messageIds) || messageIds.length === 0) {
       return c.json({
@@ -472,9 +491,10 @@ api.post('/messages/batch-delete', async (c) => {
     })
   } catch (error) {
     console.error('批量删除消息失败:', error)
+    console.error('错误详情:', error.stack)
     return c.json({
       success: false,
-      error: error.message
+      error: `批量删除失败: ${error.message}`
     }, 500)
   }
 })
@@ -1043,10 +1063,21 @@ api.get('/search', async (c) => {
 // 文件分类接口
 api.get('/files/categories', async (c) => {
   try {
+    console.log('文件分类请求开始')
     const { DB } = c.env
+
+    if (!DB) {
+      console.error('数据库未绑定')
+      return c.json({
+        success: false,
+        error: '数据库未绑定'
+      }, 500)
+    }
+
     const category = c.req.query('category') || 'all' // all, image, document, audio, video, archive, other
     const limit = parseInt(c.req.query('limit') || '50')
     const offset = parseInt(c.req.query('offset') || '0')
+    console.log('请求参数:', { category, limit, offset })
 
     // 构建文件分类SQL
     let sql = `
@@ -1162,9 +1193,11 @@ api.get('/files/categories', async (c) => {
       stats: statsResult
     })
   } catch (error) {
+    console.error('文件分类查询失败:', error)
+    console.error('错误详情:', error.stack)
     return c.json({
       success: false,
-      error: error.message
+      error: `文件分类查询失败: ${error.message}`
     }, 500)
   }
 })
