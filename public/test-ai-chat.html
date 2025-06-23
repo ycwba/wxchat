@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI聊天功能测试</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/functionComponents.css">
+    <link rel="stylesheet" href="./css/aiChat.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+    
+    <style>
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .test-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        
+        .demo-chat {
+            background: #f7f7f7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            padding: 8px 16px;
+            background: #07c160;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .test-btn:hover {
+            background: #06ad56;
+        }
+        
+        .test-btn.danger {
+            background: #ff4757;
+        }
+        
+        .test-btn.danger:hover {
+            background: #ff3838;
+        }
+        
+        .status-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        
+        .env-config {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .env-config h3 {
+            margin: 0 0 10px 0;
+            color: #856404;
+        }
+        
+        .env-config p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #856404;
+        }
+        
+        .env-config code {
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">🤖 AI聊天功能测试</h1>
+        
+        <div class="env-config">
+            <h3>⚙️ 环境配置说明</h3>
+            <p>请确保在Cloudflare Workers环境变量中设置：</p>
+            <p><code>SILICONFLOW_API_KEY</code> = 你的硅基流动API密钥</p>
+            <p>模型：<code>deepseek-ai/DeepSeek-R1-0528-Qwen3-8B</code></p>
+        </div>
+        
+        <!-- AI模式指示器占位 -->
+        <div id="aiModeIndicator" class="ai-mode-indicator hidden">
+            <div class="ai-indicator-content">
+                <div class="ai-indicator-icon">🤖</div>
+                <div class="ai-indicator-text">AI对话模式</div>
+                <button class="ai-indicator-close" id="aiModeClose">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="demo-chat" id="messageList">
+            <!-- AI消息将在这里显示 -->
+        </div>
+        
+        <!-- 模拟微信输入区域 -->
+        <div class="input-container">
+            <form class="message-input" id="messageForm">
+                <div class="input-wrapper">
+                    <button type="button" class="file-button" id="fileButton" title="上传文件">
+                        📁
+                    </button>
+                    <div class="input-field-container">
+                        <textarea
+                            id="messageText"
+                            placeholder="输入消息..."
+                            rows="1"
+                        ></textarea>
+                        <button type="button" class="function-button" id="functionButton">
+                            <svg class="function-icon" viewBox="0 0 24 24" width="16" height="16">
+                                <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                            </svg>
+                        </button>
+                        <button type="submit" class="send-button" id="sendButton">
+                            <svg class="send-icon" viewBox="0 0 24 24" width="16" height="16">
+                                <path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="test-buttons">
+            <button class="test-btn" onclick="startAIMode()">启动AI模式</button>
+            <button class="test-btn" onclick="exitAIMode()">退出AI模式</button>
+            <button class="test-btn" onclick="sendTestMessage()">发送测试消息</button>
+            <button class="test-btn" onclick="checkAIStatus()">检查AI状态</button>
+            <button class="test-btn danger" onclick="clearChat()">清空聊天</button>
+        </div>
+        
+        <div class="status-info" id="statusInfo">
+            等待操作...
+        </div>
+    </div>
+
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="fileInput" style="display: none;" multiple>
+
+    <!-- JavaScript 模块 -->
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/components/functionButton.js"></script>
+    <script src="./js/components/functionMenu.js"></script>
+    <script src="./js/services/aiService.js"></script>
+    <script src="./js/components/aiChatComponent.js"></script>
+    
+    <script>
+        // 模拟认证token
+        localStorage.setItem('authToken', 'test-token-for-ai-demo');
+        
+        // 状态显示
+        function updateStatus(message) {
+            const statusInfo = document.getElementById('statusInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            statusInfo.textContent = `[${timestamp}] ${message}`;
+        }
+        
+        // 测试函数
+        function startAIMode() {
+            if (window.AIChatComponent) {
+                window.AIChatComponent.enterAIMode();
+                updateStatus('AI模式已启动');
+            } else {
+                updateStatus('错误: AI聊天组件未找到');
+            }
+        }
+        
+        function exitAIMode() {
+            if (window.AIChatComponent) {
+                window.AIChatComponent.exitAIMode();
+                updateStatus('AI模式已退出');
+            } else {
+                updateStatus('错误: AI聊天组件未找到');
+            }
+        }
+        
+        function sendTestMessage() {
+            const messageText = document.getElementById('messageText');
+            messageText.value = '你好，请介绍一下你自己';
+            
+            // 触发发送
+            const form = document.getElementById('messageForm');
+            form.dispatchEvent(new Event('submit'));
+            
+            updateStatus('测试消息已发送');
+        }
+        
+        async function checkAIStatus() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/ai/status', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                updateStatus(`AI状态: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                updateStatus(`检查AI状态失败: ${error.message}`);
+            }
+        }
+        
+        function clearChat() {
+            const messageList = document.getElementById('messageList');
+            messageList.innerHTML = '';
+            
+            if (window.AIService) {
+                window.AIService.clearHistory();
+            }
+            
+            updateStatus('聊天记录已清空');
+        }
+        
+        // 简化的UI对象
+        const UI = {
+            elements: {},
+            
+            init() {
+                this.cacheElements();
+                this.bindEvents();
+                updateStatus('UI 初始化完成');
+            },
+            
+            cacheElements() {
+                this.elements = {
+                    messageText: document.getElementById('messageText'),
+                    sendButton: document.getElementById('sendButton'),
+                    functionButton: document.getElementById('functionButton')
+                };
+            },
+            
+            bindEvents() {
+                this.elements.messageText.addEventListener('input', () => {
+                    this.checkInputAndToggleSendButton();
+                });
+            },
+            
+            toggleSendButton(show) {
+                if (show) {
+                    this.elements.sendButton.classList.add('show');
+                } else {
+                    this.elements.sendButton.classList.remove('show');
+                }
+            },
+            
+            toggleFunctionButton(show) {
+                if (this.elements.functionButton) {
+                    if (show) {
+                        this.elements.functionButton.classList.remove('hide');
+                        this.elements.functionButton.classList.add('show');
+                    } else {
+                        this.elements.functionButton.classList.remove('show');
+                        this.elements.functionButton.classList.add('hide');
+                    }
+                }
+            },
+            
+            checkInputAndToggleSendButton() {
+                const hasContent = this.elements.messageText.value.trim().length > 0;
+                this.toggleSendButton(hasContent);
+                this.toggleFunctionButton(!hasContent);
+                
+                if (window.FunctionButton && typeof window.FunctionButton.updateVisibility === 'function') {
+                    window.FunctionButton.updateVisibility();
+                }
+            },
+            
+            getInputValue() {
+                return this.elements.messageText.value.trim();
+            },
+            
+            clearInput() {
+                this.elements.messageText.value = '';
+                this.checkInputAndToggleSendButton();
+            }
+        };
+        
+        // 简化的MessageHandler
+        const MessageHandler = {
+            init() {
+                const messageForm = document.getElementById('messageForm');
+                messageForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.sendMessage();
+                });
+            },
+            
+            async sendMessage() {
+                const content = UI.getInputValue();
+                if (!content) return;
+                
+                // 检查是否在AI模式
+                if (window.AIChatComponent && window.AIChatComponent.isInAIMode()) {
+                    const event = new CustomEvent('message:beforeSend', {
+                        detail: { message: content }
+                    });
+                    document.dispatchEvent(event);
+                    UI.clearInput();
+                    return;
+                }
+                
+                updateStatus('普通消息发送（非AI模式）');
+                UI.clearInput();
+            }
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus('页面加载完成，开始初始化...');
+            
+            // 初始化UI
+            UI.init();
+            MessageHandler.init();
+            
+            // 初始化功能组件
+            if (typeof FunctionMenu !== 'undefined') {
+                FunctionMenu.init();
+                window.FunctionMenu = FunctionMenu;
+            }
+            
+            if (typeof FunctionButton !== 'undefined') {
+                FunctionButton.init();
+                window.FunctionButton = FunctionButton;
+            }
+            
+            // 初始化AI组件
+            if (typeof AIService !== 'undefined') {
+                AIService.init();
+                window.AIService = AIService;
+                updateStatus('AI服务初始化完成');
+            }
+            
+            if (typeof AIChatComponent !== 'undefined') {
+                AIChatComponent.init();
+                window.AIChatComponent = AIChatComponent;
+                updateStatus('AI聊天组件初始化完成');
+            }
+            
+            setTimeout(() => {
+                updateStatus('所有组件初始化完成！点击"启动AI模式"开始测试 🤖');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

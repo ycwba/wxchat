@@ -52,6 +52,19 @@ class WeChatApp {
                 window.FunctionButton = FunctionButton;
             }
 
+            // 初始化AI组件
+            if (typeof AIService !== 'undefined') {
+                console.log('App: 初始化AI服务');
+                AIService.init();
+                window.AIService = AIService;
+            }
+
+            if (typeof AIChatComponent !== 'undefined') {
+                console.log('App: 初始化AI聊天组件');
+                AIChatComponent.init();
+                window.AIChatComponent = AIChatComponent;
+            }
+
             // 初始化PWA功能
             if (typeof PWA !== 'undefined') {
                 PWA.init();

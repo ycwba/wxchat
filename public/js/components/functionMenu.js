@@ -2,55 +2,13 @@
 // 提供Web端适用的功能选项界面框架
 
 const FunctionMenu = {
-    // 菜单配置 - 微信风格
+    // 菜单配置 - 简化版，专注AI功能
     menuItems: [
         {
-            id: 'photo',
-            icon: '📷',
-            title: '拍摄',
-            action: 'photo'
-        },
-        {
-            id: 'album',
-            icon: '🖼️',
-            title: '相册',
-            action: 'album'
-        },
-        {
-            id: 'video',
-            icon: '📹',
-            title: '视频通话',
-            action: 'video'
-        },
-        {
-            id: 'location',
-            icon: '📍',
-            title: '位置',
-            action: 'location'
-        },
-        {
-            id: 'red-packet',
-            icon: '🧧',
-            title: '红包',
-            action: 'redPacket'
-        },
-        {
-            id: 'transfer',
-            icon: '💰',
-            title: '转账',
-            action: 'transfer'
-        },
-        {
-            id: 'voice-input',
-            icon: '🎤',
-            title: '语音输入',
-            action: 'voiceInput'
-        },
-        {
-            id: 'emoji',
-            icon: '😊',
-            title: '表情',
-            action: 'emoji'
+            id: 'ai',
+            icon: '🤖',
+            title: 'AI对话',
+            action: 'ai'
         },
         {
             id: 'file',
@@ -59,22 +17,16 @@ const FunctionMenu = {
             action: 'file'
         },
         {
-            id: 'music',
-            icon: '🎵',
-            title: '音乐',
-            action: 'music'
+            id: 'emoji',
+            icon: '😊',
+            title: '表情',
+            action: 'emoji'
         },
         {
-            id: 'card',
-            icon: '👤',
-            title: '个人名片',
-            action: 'card'
-        },
-        {
-            id: 'favorite',
-            icon: '⭐',
-            title: '收藏',
-            action: 'favorite'
+            id: 'clear-chat',
+            icon: '🗑️',
+            title: '清空聊天',
+            action: 'clearChat'
         }
     ],
 
@@ -183,44 +135,20 @@ const FunctionMenu = {
         this.hide();
     },
 
-    // 执行功能动作 - 微信风格功能
+    // 执行功能动作 - 简化版
     executeAction(action, itemId) {
         switch (action) {
-            case 'photo':
-                this.handlePhoto();
-                break;
-            case 'album':
-                this.handleAlbum();
-                break;
-            case 'video':
-                this.handleVideo();
-                break;
-            case 'location':
-                this.handleLocation();
-                break;
-            case 'redPacket':
-                this.handleRedPacket();
-                break;
-            case 'transfer':
-                this.handleTransfer();
-                break;
-            case 'voiceInput':
-                this.handleVoiceInput();
-                break;
-            case 'emoji':
-                this.handleEmoji();
+            case 'ai':
+                this.handleAI();
                 break;
             case 'file':
                 this.handleFile();
                 break;
-            case 'music':
-                this.handleMusic();
+            case 'emoji':
+                this.handleEmoji();
                 break;
-            case 'card':
-                this.handleCard();
-                break;
-            case 'favorite':
-                this.handleFavorite();
+            case 'clearChat':
+                this.handleClearChat();
                 break;
             default:
                 console.log(`未实现的功能: ${action}`);
@@ -228,53 +156,14 @@ const FunctionMenu = {
         }
     },
 
-    // 拍摄功能
-    handlePhoto() {
-        this.showComingSoon('拍摄');
-    },
-
-    // 相册功能
-    handleAlbum() {
-        // 触发文件选择
-        const fileInput = document.getElementById('fileInput');
-        if (fileInput) {
-            fileInput.accept = 'image/*';
-            fileInput.click();
-        } else {
-            this.showComingSoon('相册');
-        }
-    },
-
-    // 视频通话功能
-    handleVideo() {
-        this.showComingSoon('视频通话');
-    },
-
-    // 位置功能
-    handleLocation() {
-        this.insertTextToInput('📍 [位置信息]');
-    },
-
-    // 红包功能
-    handleRedPacket() {
-        this.insertTextToInput('🧧 [红包] 恭喜发财，大吉大利！');
-    },
-
-    // 转账功能
-    handleTransfer() {
-        this.insertTextToInput('💰 [转账] 已向您转账');
-    },
-
-    // 语音输入功能
-    handleVoiceInput() {
-        this.showComingSoon('语音输入');
-    },
-
-    // 表情功能
-    handleEmoji() {
-        const emojis = ['😊', '👍', '❤️', '😂', '🎉', '👏', '🔥', '💯', '🥰', '😍', '🤔', '😅'];
-        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-        this.insertTextToInput(randomEmoji);
+    // AI对话功能
+    handleAI() {
+        console.log('启动AI对话功能');
+        // 触发AI对话模式事件
+        const event = new CustomEvent('functionMenu:aiMode', {
+            detail: { action: 'ai', mode: 'start' }
+        });
+        document.dispatchEvent(event);
     },
 
     // 文件功能
@@ -289,19 +178,20 @@ const FunctionMenu = {
         }
     },
 
-    // 音乐功能
-    handleMusic() {
-        this.insertTextToInput('🎵 [音乐] 分享了一首歌曲');
+    // 表情功能
+    handleEmoji() {
+        const emojis = ['😊', '👍', '❤️', '😂', '🎉', '👏', '🔥', '💯', '🥰', '😍', '🤔', '😅'];
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        this.insertTextToInput(randomEmoji);
     },
 
-    // 个人名片功能
-    handleCard() {
-        this.insertTextToInput('👤 [个人名片] 推荐了一个联系人');
-    },
-
-    // 收藏功能
-    handleFavorite() {
-        this.insertTextToInput('⭐ [收藏] 分享了一个收藏');
+    // 清空聊天功能
+    handleClearChat() {
+        if (confirm('确定要清空所有聊天记录吗？')) {
+            // 触发清空聊天事件
+            const event = new CustomEvent('functionMenu:clearChat');
+            document.dispatchEvent(event);
+        }
     },
 
     // 显示即将推出提示
