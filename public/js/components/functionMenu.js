@@ -81,6 +81,12 @@ const FunctionMenu = {
             icon: '🤖',
             title: 'AI助手',
             action: 'aiChat'
+        },
+        {
+            id: 'ai-image-gen',
+            icon: '🎨',
+            title: 'AI绘画',
+            action: 'aiImageGen'
         }
     ],
 
@@ -231,6 +237,9 @@ const FunctionMenu = {
             case 'aiChat':
                 this.handleAiChat();
                 break;
+            case 'aiImageGen':
+                this.handleAiImageGen();
+                break;
             default:
                 console.log(`未实现的功能: ${action}`);
                 this.showComingSoon(action);
@@ -339,6 +348,34 @@ const FunctionMenu = {
             setTimeout(() => {
                 if (window.AIHandler && typeof AIHandler.init === 'function') {
                     AIHandler.init();
+                }
+            }, 100);
+        }
+    },
+
+    // AI图片生成功能
+    handleAiImageGen() {
+        console.log('FunctionMenu: 启动AI图片生成功能');
+
+        // 检查图片生成功能是否可用
+        if (!CONFIG.IMAGE_GEN.ENABLED) {
+            this.insertTextToInput('🎨 AI图片生成功能暂未启用');
+            return;
+        }
+
+        // 检查ImageGenUI是否已加载
+        if (window.ImageGenUI && typeof ImageGenUI.showImageGenModal === 'function') {
+            // 显示图片生成模态框
+            ImageGenUI.showImageGenModal();
+        } else {
+            // 如果UI模块未加载，显示提示
+            this.insertTextToInput('🎨 AI图片生成模块正在加载中...');
+
+            // 尝试初始化图片生成模块
+            setTimeout(() => {
+                if (window.ImageGenUI && typeof ImageGenUI.init === 'function') {
+                    ImageGenUI.init();
+                    ImageGenUI.showImageGenModal();
                 }
             }, 100);
         }

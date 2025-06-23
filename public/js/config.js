@@ -64,6 +64,20 @@ const CONFIG = {
         RESPONSE_INDICATOR: '🤖 AI助手',
         MODE_INDICATOR: '🤖 AI模式'
     },
+
+    // AI图片生成配置
+    IMAGE_GEN: {
+        ENABLED: true,
+        API_KEY: 'sk-cowojsuuakqrsaizlldlimbhewnokgjhvczjnwwydxnvrczv',
+        MODEL: 'Kwai-Kolors/Kolors',
+        DEFAULT_SIZE: '1024x1024',
+        DEFAULT_STEPS: 20,
+        DEFAULT_GUIDANCE: 7.5,
+        MAX_PROMPT_LENGTH: 1000,
+        GENERATING_INDICATOR: '🎨 AI正在生成图片...',
+        UPLOADING_INDICATOR: '📤 正在保存图片...',
+        SUCCESS_INDICATOR: '✅ 图片生成完成'
+    },
     
     // 文件类型图标映射 - 完整版
     FILE_ICONS: {
@@ -221,7 +235,14 @@ const CONFIG = {
         CLEAR_CANCELLED: '数据清理已取消',
         AI_REQUEST_FAILED: 'AI请求失败，请稍后重试',
         AI_STREAM_ERROR: 'AI流式响应中断',
-        AI_PARSE_ERROR: 'AI响应解析失败'
+        AI_PARSE_ERROR: 'AI响应解析失败',
+        IMAGE_GEN_FAILED: 'AI图片生成失败',
+        IMAGE_GEN_PROMPT_EMPTY: '请输入图片描述',
+        IMAGE_GEN_PROMPT_TOO_LONG: '图片描述过长，请简化',
+        IMAGE_GEN_DOWNLOAD_FAILED: '图片下载失败',
+        IMAGE_GEN_UPLOAD_FAILED: '图片保存失败',
+        IMAGE_GEN_API_ERROR: 'AI图片生成服务暂时不可用',
+        IMAGE_GEN_QUOTA_EXCEEDED: '图片生成次数已达上限'
     },
     
     // 成功消息
@@ -231,7 +252,9 @@ const CONFIG = {
         DEVICE_SYNCED: '设备同步成功',
         DATA_CLEARED: '数据清理成功',
         AI_MODE_ENABLED: 'AI模式已启用',
-        AI_MODE_DISABLED: 'AI模式已关闭'
+        AI_MODE_DISABLED: 'AI模式已关闭',
+        IMAGE_GEN_SUCCESS: '图片生成成功',
+        IMAGE_GEN_SAVED: '图片已保存到聊天记录'
     }
 };
 
@@ -244,6 +267,7 @@ Object.freeze(CONFIG.UI);
 Object.freeze(CONFIG.DEVICE);
 Object.freeze(CONFIG.MESSAGE_TYPES);
 Object.freeze(CONFIG.AI);
+Object.freeze(CONFIG.IMAGE_GEN);
 Object.freeze(CONFIG.FILE_ICONS);
 Object.freeze(CONFIG.FILE_EXTENSION_ICONS);
 Object.freeze(CONFIG.CLEAR);

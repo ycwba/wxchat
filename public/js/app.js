@@ -76,6 +76,21 @@ class WeChatApp {
                 }
             }
 
+            // 初始化AI图片生成模块
+            console.log('App: 开始初始化AI图片生成模块');
+            if (typeof ImageGenUI !== 'undefined') {
+                console.log('App: 初始化图片生成UI');
+                ImageGenUI.init();
+                window.ImageGenUI = ImageGenUI;
+            }
+
+            if (typeof ImageGenHandler !== 'undefined') {
+                console.log('App: 初始化图片生成处理器');
+                ImageGenHandler.init();
+                window.ImageGenHandler = ImageGenHandler;
+                console.log('App: AI图片生成模块初始化成功');
+            }
+
             // 设置初始连接状态
             UI.setConnectionStatus(navigator.onLine ? 'connected' : 'disconnected');
 
@@ -342,6 +357,17 @@ if (typeof AIHandler !== 'undefined') {
     window.AIHandler = AIHandler;
 }
 
+// AI图片生成模块全局导出
+if (typeof ImageGenAPI !== 'undefined') {
+    window.ImageGenAPI = ImageGenAPI;
+}
+if (typeof ImageGenUI !== 'undefined') {
+    window.ImageGenUI = ImageGenUI;
+}
+if (typeof ImageGenHandler !== 'undefined') {
+    window.ImageGenHandler = ImageGenHandler;
+}
+
 // 开发模式下的调试信息
 if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     console.log('🔧 开发模式已启用');
@@ -356,6 +382,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         PWA: typeof PWA !== 'undefined' ? PWA : undefined,
         AIAPI: typeof AIAPI !== 'undefined' ? AIAPI : undefined,
         AIUI: typeof AIUI !== 'undefined' ? AIUI : undefined,
-        AIHandler: typeof AIHandler !== 'undefined' ? AIHandler : undefined
+        AIHandler: typeof AIHandler !== 'undefined' ? AIHandler : undefined,
+        ImageGenAPI: typeof ImageGenAPI !== 'undefined' ? ImageGenAPI : undefined,
+        ImageGenUI: typeof ImageGenUI !== 'undefined' ? ImageGenUI : undefined,
+        ImageGenHandler: typeof ImageGenHandler !== 'undefined' ? ImageGenHandler : undefined
     });
 }
