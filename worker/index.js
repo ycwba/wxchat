@@ -458,6 +458,28 @@ api.get('/files/download/:r2Key', async (c) => {
   }
 })
 
+// 调试接口 - 检查文件上传状态
+api.get('/debug/upload-status', async (c) => {
+  try {
+    const { DB, R2 } = c.env
+
+    return c.json({
+      success: true,
+      data: {
+        hasDB: !!DB,
+        hasR2: !!R2,
+        timestamp: new Date().toISOString(),
+        workerVersion: '2024-12-23-v2'
+      }
+    })
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: error.message
+    }, 500)
+  }
+})
+
 // 设备同步
 api.post('/sync', async (c) => {
   try {

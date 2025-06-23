@@ -60,11 +60,39 @@ const API = {
     
     // 文件上传请求
     async upload(url, formData) {
-        return this.request(url, {
+        // 对于FormData，不设置Content-Type让浏览器自动设置
+        const defaultOptions = {};
+
+        // 添加认证头
+        const authHeaders = Auth ? Auth.addAuthHeader({}) : {};
+
+        const config = {
+            ...defaultOptions,
             method: 'POST',
-            headers: {}, // 让浏览器自动设置Content-Type
+            headers: {
+                ...authHeaders,
+                // 不设置Content-Type，让浏览器为FormData自动设置multipart/form-data
+            },
             body: formData,
-        });
+        };
+
+        try {
+            const response = await fetch(url, config);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+
+            return response;
+        } catch (error) {
+            console.error('文件上传请求失败:', error);
+            throw error;
+        }
     },
     
     // 获取消息列表
