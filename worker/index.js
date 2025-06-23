@@ -1172,9 +1172,51 @@ api.get('/files/categories', async (c) => {
 
     // 添加相同的分类过滤条件到计数查询
     if (category !== 'all') {
-      const categoryCondition = sql.substring(sql.indexOf('WHERE 1=1') + 9, sql.indexOf('ORDER BY')).trim()
-      if (categoryCondition) {
-        countSql += categoryCondition
+      switch (category) {
+        case 'image':
+          countSql += ` AND f.mime_type LIKE 'image/%'`
+          break
+        case 'document':
+          countSql += ` AND (
+            f.mime_type LIKE '%pdf%' OR
+            f.mime_type LIKE '%document%' OR
+            f.mime_type LIKE '%word%' OR
+            f.mime_type LIKE '%excel%' OR
+            f.mime_type LIKE '%powerpoint%' OR
+            f.mime_type LIKE '%presentation%' OR
+            f.mime_type LIKE 'text/%'
+          )`
+          break
+        case 'audio':
+          countSql += ` AND f.mime_type LIKE 'audio/%'`
+          break
+        case 'video':
+          countSql += ` AND f.mime_type LIKE 'video/%'`
+          break
+        case 'archive':
+          countSql += ` AND (
+            f.mime_type LIKE '%zip%' OR
+            f.mime_type LIKE '%rar%' OR
+            f.mime_type LIKE '%compressed%' OR
+            f.mime_type LIKE '%archive%'
+          )`
+          break
+        case 'other':
+          countSql += ` AND f.mime_type NOT LIKE 'image/%'
+                       AND f.mime_type NOT LIKE 'audio/%'
+                       AND f.mime_type NOT LIKE 'video/%'
+                       AND f.mime_type NOT LIKE '%pdf%'
+                       AND f.mime_type NOT LIKE '%document%'
+                       AND f.mime_type NOT LIKE '%word%'
+                       AND f.mime_type NOT LIKE '%excel%'
+                       AND f.mime_type NOT LIKE '%powerpoint%'
+                       AND f.mime_type NOT LIKE '%presentation%'
+                       AND f.mime_type NOT LIKE 'text/%'
+                       AND f.mime_type NOT LIKE '%zip%'
+                       AND f.mime_type NOT LIKE '%rar%'
+                       AND f.mime_type NOT LIKE '%compressed%'
+                       AND f.mime_type NOT LIKE '%archive%'`
+          break
       }
     }
 
