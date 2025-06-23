@@ -87,16 +87,11 @@ const UI = {
         // 检查用户是否在底部
         const wasAtBottom = this.isAtBottom();
 
-        // 按时间戳升序排序（旧消息在上，新消息在下）
-        const sortedMessages = [...messages].sort((a, b) =>
-            new Date(a.timestamp) - new Date(b.timestamp)
-        );
+        // 数据库已经按时间戳升序排序，直接使用
+        const sortedMessages = messages;
 
-        // 确保顶部加载指示器存在
-        this.ensureTopLoadingIndicator();
-
-        // 执行增量更新
-        this.updateMessagesIncremental(sortedMessages);
+        // 简单重新渲染：清空并重新创建所有消息
+        this.renderMessagesSimple(sortedMessages);
 
         // 只有在用户原本在底部或强制滚动时才滚动到底部
         if (wasAtBottom || forceScroll) {
