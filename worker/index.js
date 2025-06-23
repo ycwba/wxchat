@@ -301,6 +301,13 @@ api.post('/files/upload', async (c) => {
     const file = formData.get('file')
     const deviceId = formData.get('deviceId')
 
+    console.log('文件上传请求:', {
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type,
+      deviceId
+    })
+
     if (!file || !deviceId) {
       return c.json({
         success: false,
@@ -308,56 +315,95 @@ api.post('/files/upload', async (c) => {
       }, 400)
     }
 
+    // 检查文件大小限制（10MB）
+    if (file.size > 10 * 1024 * 1024) {
+      return c.json({
+        success: false,
+        error: '文件大小不能超过10MB'
+      }, 400)
+    }
+
     // 生成唯一的文件名
     const timestamp = Date.now()
     const randomStr = Math.random().toString(36).substring(2)
-    const fileExtension = file.name.split('.').pop()
+    const fileExtension = file.name.split('.').pop() || 'bin'
     const r2Key = `${timestamp}-${randomStr}.${fileExtension}`
 
+    console.log('准备上传到R2:', { r2Key, fileSize: file.size })
+
     // 上传到R2
-    await R2.put(r2Key, file.stream(), {
-      httpMetadata: {
-        contentType: file.type,
-        contentDisposition: `attachment; filename="${file.name}"`
-      }
-    })
+    try {
+      await R2.put(r2Key, file.stream(), {
+        httpMetadata: {
+          contentType: file.type || 'application/octet-stream',
+          contentDisposition: `attachment; filename="${file.name}"`
+        }
+      })
+      console.log('R2上传成功:', r2Key)
+    } catch (r2Error) {
+      console.error('R2上传失败:', r2Error)
+      return c.json({
+        success: false,
+        error: `文件上传到存储失败: ${r2Error.message}`
+      }, 500)
+    }
 
     // 保存文件信息到数据库
-    const fileStmt = DB.prepare(`
-      INSERT INTO files (original_name, file_name, file_size, mime_type, r2_key, upload_device_id)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `)
+    try {
+      const fileStmt = DB.prepare(`
+        INSERT INTO files (original_name, file_name, file_size, mime_type, r2_key, upload_device_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `)
 
-    const fileResult = await fileStmt.bind(
-      file.name,
-      r2Key,
-      file.size,
-      file.type,
-      r2Key,
-      deviceId
-    ).run()
+      const fileResult = await fileStmt.bind(
+        file.name,
+        r2Key,
+        file.size,
+        file.type || 'application/octet-stream',
+        r2Key,
+        deviceId
+      ).run()
 
-    // 创建文件消息
-    const messageStmt = DB.prepare(`
-      INSERT INTO messages (type, file_id, device_id)
-      VALUES (?, ?, ?)
-    `)
+      console.log('文件信息保存成功:', fileResult.meta.last_row_id)
 
-    await messageStmt.bind('file', fileResult.meta.last_row_id, deviceId).run()
+      // 创建文件消息
+      const messageStmt = DB.prepare(`
+        INSERT INTO messages (type, file_id, device_id)
+        VALUES (?, ?, ?)
+      `)
 
-    return c.json({
-      success: true,
-      data: {
-        fileId: fileResult.meta.last_row_id,
-        fileName: file.name,
-        fileSize: file.size,
-        r2Key: r2Key
+      await messageStmt.bind('file', fileResult.meta.last_row_id, deviceId).run()
+
+      console.log('文件消息创建成功')
+
+      return c.json({
+        success: true,
+        data: {
+          fileId: fileResult.meta.last_row_id,
+          fileName: file.name,
+          fileSize: file.size,
+          r2Key: r2Key
+        }
+      })
+    } catch (dbError) {
+      console.error('数据库操作失败:', dbError)
+      // 如果数据库操作失败，尝试删除已上传的R2文件
+      try {
+        await R2.delete(r2Key)
+      } catch (deleteError) {
+        console.error('清理R2文件失败:', deleteError)
       }
-    })
+
+      return c.json({
+        success: false,
+        error: `数据库操作失败: ${dbError.message}`
+      }, 500)
+    }
   } catch (error) {
+    console.error('文件上传总体失败:', error)
     return c.json({
       success: false,
-      error: error.message
+      error: `文件上传失败: ${error.message}`
     }, 500)
   }
 })

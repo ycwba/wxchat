@@ -64,8 +64,20 @@ const ImageGenHandler = {
             this.updateGeneratingStatus(statusElement, CONFIG.IMAGE_GEN.UPLOADING_INDICATOR);
             
             // 7. 创建文件对象并上传到R2（使用现有的文件上传API）
-            const fileName = `ai-generated-${Date.now()}.png`;
-            const file = new File([imageBlob], fileName, { type: 'image/png' });
+            const timestamp = Date.now();
+            const fileName = `ai-generated-${timestamp}.png`;
+
+            // 确保文件类型正确
+            const file = new File([imageBlob], fileName, {
+                type: 'image/png',
+                lastModified: timestamp
+            });
+
+            console.log('ImageGenHandler: 准备上传文件', {
+                fileName: file.name,
+                fileSize: file.size,
+                fileType: file.type
+            });
 
             const deviceId = Utils.getDeviceId();
             const uploadResult = await API.uploadFile(file, deviceId);
