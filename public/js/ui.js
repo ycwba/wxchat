@@ -90,8 +90,11 @@ const UI = {
         // 数据库已经按时间戳升序排序，直接使用
         const sortedMessages = messages;
 
-        // 简单重新渲染：清空并重新创建所有消息
-        this.renderMessagesSimple(sortedMessages);
+        // 确保顶部加载指示器存在
+        this.ensureTopLoadingIndicator();
+
+        // 执行增量更新
+        this.updateMessagesIncremental(sortedMessages);
 
         // 只有在用户原本在底部或强制滚动时才滚动到底部
         if (wasAtBottom || forceScroll) {
