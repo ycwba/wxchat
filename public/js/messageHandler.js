@@ -9,6 +9,11 @@ const MessageHandler = {
 
     // 加载状态（防止重复请求）
     isLoading: false,
+    isLoadingMore: false,
+
+    // 分页状态
+    hasMoreMessages: true, // 是否还有更多历史消息
+    totalLoadedMessages: 0, // 已加载的消息总数
 
     // 初始化消息处理
     init() {
@@ -96,8 +101,15 @@ const MessageHandler = {
 
                 UI.renderMessages(messages, shouldScroll);
 
-                // 更新缓存
+                // 更新缓存和分页状态
                 this.lastMessages = [...messages];
+                this.totalLoadedMessages = messages.length;
+
+                // 判断是否还有更多消息
+                this.hasMoreMessages = messages.length >= CONFIG.UI.MESSAGE_LOAD_LIMIT;
+
+                // 更新"加载更多"按钮显示状态
+                UI.updateLoadMoreButton(this.hasMoreMessages);
             }
 
         } catch (error) {
@@ -112,6 +124,65 @@ const MessageHandler = {
             }
         } finally {
             this.isLoading = false;
+        }
+    },
+
+    // 加载更多历史消息
+    async loadMoreMessages() {
+        // 防止重复请求
+        if (this.isLoadingMore || !this.hasMoreMessages) {
+            return;
+        }
+
+        this.isLoadingMore = true;
+        UI.setLoadMoreButtonState(true); // 显示加载状态
+
+        try {
+            // 获取当前滚动位置
+            const scrollContainer = UI.getMessageContainer();
+            const oldScrollHeight = scrollContainer.scrollHeight;
+            const oldScrollTop = scrollContainer.scrollTop;
+
+            // 加载更多消息
+            const moreMessages = await API.getMessages(
+                CONFIG.UI.LOAD_MORE_BATCH_SIZE,
+                this.totalLoadedMessages
+            );
+
+            if (moreMessages && moreMessages.length > 0) {
+                // 合并消息（新加载的历史消息在前面）
+                const allMessages = [...moreMessages, ...this.lastMessages];
+
+                // 更新UI（不滚动）
+                UI.renderMessages(allMessages, false);
+
+                // 更新缓存和状态
+                this.lastMessages = allMessages;
+                this.totalLoadedMessages += moreMessages.length;
+
+                // 判断是否还有更多消息
+                this.hasMoreMessages = moreMessages.length >= CONFIG.UI.LOAD_MORE_BATCH_SIZE;
+
+                // 恢复滚动位置（保持用户当前查看位置）
+                requestAnimationFrame(() => {
+                    const newScrollHeight = scrollContainer.scrollHeight;
+                    const scrollDiff = newScrollHeight - oldScrollHeight;
+                    scrollContainer.scrollTop = oldScrollTop + scrollDiff;
+                });
+            } else {
+                // 没有更多消息了
+                this.hasMoreMessages = false;
+            }
+
+            // 更新"加载更多"按钮状态
+            UI.updateLoadMoreButton(this.hasMoreMessages);
+
+        } catch (error) {
+            console.error('加载更多消息失败:', error);
+            UI.showError('加载历史消息失败，请重试');
+        } finally {
+            this.isLoadingMore = false;
+            UI.setLoadMoreButtonState(false); // 隐藏加载状态
         }
     },
 

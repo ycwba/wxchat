@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试加载更多功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .load-more-button {
+            display: flex;
+            justify-content: center;
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .load-more-btn {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #6c757d;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .load-more-btn:hover {
+            background: linear-gradient(135deg, #07c160 0%, #1aad19 100%);
+            color: white;
+            border-color: #07c160;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(7, 193, 96, 0.2);
+        }
+        .load-more-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .load-more-loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+        }
+        .success {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        .error {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐶💖 wxchat "加载更多"功能测试</h1>
+    
+    <div class="test-section">
+        <h2>📋 功能说明</h2>
+        <p>我已经为wxchat项目添加了"加载更多历史消息"功能！</p>
+        <ul>
+            <li>✅ 在消息列表顶部显示"加载更多"按钮</li>
+            <li>✅ 只有当消息数量达到50条时才显示按钮</li>
+            <li>✅ 点击后加载30条历史消息</li>
+            <li>✅ 保持用户当前的滚动位置</li>
+            <li>✅ WeChat风格的UI设计</li>
+            <li>✅ 加载状态指示器</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🎨 按钮样式预览</h2>
+        <p>这是"加载更多"按钮的样式效果：</p>
+        
+        <div class="load-more-button">
+            <button class="load-more-btn" onclick="testLoadMore()">
+                <span class="load-more-text">📜 加载更多历史消息</span>
+                <span class="load-more-loading" style="display: none;">⏳ 加载中...</span>
+            </button>
+        </div>
+        
+        <div id="status" class="status">点击上面的按钮测试样式效果</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 修改的文件</h2>
+        <ul>
+            <li><strong>public/js/config.js</strong> - 添加分页配置</li>
+            <li><strong>public/js/messageHandler.js</strong> - 添加loadMoreMessages方法</li>
+            <li><strong>public/js/ui.js</strong> - 添加按钮管理方法</li>
+            <li><strong>public/css/components.css</strong> - 添加按钮样式</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>⚙️ 配置参数</h2>
+        <ul>
+            <li><strong>MESSAGE_LOAD_LIMIT:</strong> 50 (初始加载消息数量)</li>
+            <li><strong>LOAD_MORE_BATCH_SIZE:</strong> 30 (每次加载更多的数量)</li>
+            <li><strong>LOAD_MORE_THRESHOLD:</strong> 50 (显示按钮的阈值)</li>
+        </ul>
+    </div>
+
+    <script>
+        function testLoadMore() {
+            const button = document.querySelector('.load-more-btn');
+            const textSpan = document.querySelector('.load-more-text');
+            const loadingSpan = document.querySelector('.load-more-loading');
+            const status = document.getElementById('status');
+            
+            // 显示加载状态
+            textSpan.style.display = 'none';
+            loadingSpan.style.display = 'inline';
+            button.disabled = true;
+            status.className = 'status';
+            status.textContent = '正在模拟加载更多消息...';
+            
+            // 模拟加载过程
+            setTimeout(() => {
+                textSpan.style.display = 'inline';
+                loadingSpan.style.display = 'none';
+                button.disabled = false;
+                status.className = 'status success';
+                status.textContent = '✅ 加载完成！在实际应用中，这里会加载30条历史消息。';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -29,7 +29,9 @@ const CONFIG = {
         AUTO_REFRESH_INTERVAL: 3000, // 3秒自动刷新（更快响应）
         MESSAGE_LOAD_LIMIT: 50, // 每次加载消息数量
         ANIMATION_DURATION: 100, // 动画持续时间(ms)（更快动画）
-        TYPING_INDICATOR_DELAY: 1000 // 输入指示器延迟
+        TYPING_INDICATOR_DELAY: 1000, // 输入指示器延迟
+        LOAD_MORE_THRESHOLD: 50, // 当消息数量达到此值时显示"加载更多"按钮
+        LOAD_MORE_BATCH_SIZE: 30 // 每次"加载更多"加载的消息数量
     },
     
     // 设备配置

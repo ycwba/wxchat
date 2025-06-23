@@ -81,6 +81,7 @@ const UI = {
         if (!messages || messages.length === 0) {
             this.showEmpty();
             this.messageCache.clear();
+            this.hideLoadMoreButton();
             return;
         }
 
@@ -111,6 +112,9 @@ const UI = {
             messageContainer.innerHTML = '';
             this.messageCache.clear();
         }
+
+        // 确保"加载更多"按钮存在
+        this.ensureLoadMoreButton();
 
         // 创建新的消息ID集合
         const newMessageIds = new Set(messages.map(msg => msg.id));
@@ -147,9 +151,14 @@ const UI = {
             }
         });
 
-        // 一次性添加所有新消息到末尾
+        // 一次性添加所有新消息到"加载更多"按钮之后
+        const loadMoreButton = messageContainer.querySelector('.load-more-button');
         if (fragment.children.length > 0) {
-            messageContainer.appendChild(fragment);
+            if (loadMoreButton) {
+                messageContainer.insertBefore(fragment, loadMoreButton.nextSibling);
+            } else {
+                messageContainer.appendChild(fragment);
+            }
         }
 
         // 处理需要加载图片的消息
@@ -724,5 +733,70 @@ const UI = {
 
         // 重新加载
         await this.loadImageAsync(r2Key, safeId);
+    },
+
+    // 确保"加载更多"按钮存在
+    ensureLoadMoreButton() {
+        const messageContainer = this.elements.messageList;
+        let loadMoreButton = messageContainer.querySelector('.load-more-button');
+
+        if (!loadMoreButton) {
+            loadMoreButton = document.createElement('div');
+            loadMoreButton.className = 'load-more-button';
+            loadMoreButton.innerHTML = `
+                <button class="load-more-btn" onclick="MessageHandler.loadMoreMessages()">
+                    <span class="load-more-text">📜 加载更多历史消息</span>
+                    <span class="load-more-loading" style="display: none;">⏳ 加载中...</span>
+                </button>
+            `;
+
+            // 插入到消息列表的最前面
+            messageContainer.insertBefore(loadMoreButton, messageContainer.firstChild);
+        }
+    },
+
+    // 更新"加载更多"按钮显示状态
+    updateLoadMoreButton(hasMore) {
+        const loadMoreButton = this.elements.messageList.querySelector('.load-more-button');
+        if (loadMoreButton) {
+            if (hasMore) {
+                loadMoreButton.style.display = 'block';
+            } else {
+                loadMoreButton.style.display = 'none';
+            }
+        }
+    },
+
+    // 隐藏"加载更多"按钮
+    hideLoadMoreButton() {
+        const loadMoreButton = this.elements.messageList.querySelector('.load-more-button');
+        if (loadMoreButton) {
+            loadMoreButton.style.display = 'none';
+        }
+    },
+
+    // 设置"加载更多"按钮状态
+    setLoadMoreButtonState(loading) {
+        const loadMoreButton = this.elements.messageList.querySelector('.load-more-button');
+        if (loadMoreButton) {
+            const textSpan = loadMoreButton.querySelector('.load-more-text');
+            const loadingSpan = loadMoreButton.querySelector('.load-more-loading');
+            const button = loadMoreButton.querySelector('.load-more-btn');
+
+            if (loading) {
+                textSpan.style.display = 'none';
+                loadingSpan.style.display = 'inline';
+                button.disabled = true;
+            } else {
+                textSpan.style.display = 'inline';
+                loadingSpan.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+    },
+
+    // 获取消息容器
+    getMessageContainer() {
+        return this.elements.messageList;
     }
 };
