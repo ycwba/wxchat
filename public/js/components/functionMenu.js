@@ -240,7 +240,27 @@ const FunctionMenu = {
 
     // 拍摄功能
     handlePhoto() {
-        this.showComingSoon('拍摄');
+        // 检查是否支持相机
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            UI.showError('您的设备不支持相机功能');
+            return;
+        }
+
+        // 调用相机拍照组件
+        if (window.CameraCapture && typeof CameraCapture.openCamera === 'function') {
+            CameraCapture.openCamera();
+        } else {
+            // 如果相机组件未加载，显示提示并尝试加载
+            UI.showError('相机组件正在加载中...');
+
+            // 尝试初始化相机组件
+            setTimeout(() => {
+                if (window.CameraCapture && typeof CameraCapture.init === 'function') {
+                    CameraCapture.init();
+                    CameraCapture.openCamera();
+                }
+            }, 100);
+        }
     },
 
     // 相册功能

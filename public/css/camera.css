@@ -1,0 +1,338 @@
+/* 相机拍照组件样式 */
+
+/* 相机模态框 */
+.camera-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.camera-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 相机容器 */
+.camera-container {
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    position: relative;
+}
+
+/* 相机头部 */
+.camera-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    position: relative;
+    z-index: 10001;
+}
+
+.camera-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.camera-close-btn,
+.camera-switch-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.2rem;
+}
+
+.camera-close-btn:hover,
+.camera-switch-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.camera-close-btn:active,
+.camera-switch-btn:active {
+    transform: scale(0.95);
+}
+
+/* 相机预览区域 */
+.camera-preview {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    overflow: hidden;
+}
+
+#cameraVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* 镜像显示前置摄像头 */
+}
+
+/* 后置摄像头不需要镜像 */
+.camera-preview.rear-camera #cameraVideo {
+    transform: none;
+}
+
+/* 相机控制区域 */
+.camera-controls {
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10001;
+}
+
+/* 拍照按钮 */
+.camera-capture-btn {
+    width: 80px;
+    height: 80px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.camera-capture-btn:active {
+    transform: scale(0.95);
+}
+
+.capture-circle {
+    width: 100%;
+    height: 100%;
+    border: 4px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.camera-capture-btn:hover .capture-circle {
+    border-color: #07c160;
+}
+
+.capture-inner {
+    width: 60px;
+    height: 60px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.camera-capture-btn:hover .capture-inner {
+    background: #07c160;
+}
+
+.camera-capture-btn:active .capture-inner {
+    transform: scale(0.9);
+}
+
+/* 相机状态显示 */
+.camera-status {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    z-index: 10002;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .camera-container {
+        max-width: 100%;
+        height: 100vh;
+        /* iOS Safari 视口修复 */
+        height: calc(var(--vh, 1vh) * 100);
+        min-height: -webkit-fill-available;
+    }
+
+    .camera-header {
+        padding: 0.75rem 1rem;
+        /* 适配刘海屏 */
+        padding-top: max(0.75rem, env(safe-area-inset-top));
+    }
+
+    .camera-controls {
+        padding: 1.5rem;
+        /* 适配底部安全区域 */
+        padding-bottom: max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom)));
+    }
+
+    .camera-capture-btn {
+        width: 70px;
+        height: 70px;
+    }
+
+    .capture-inner {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* 横屏适配 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .camera-header {
+        padding: 0.5rem 1rem;
+    }
+
+    .camera-controls {
+        padding: 1rem;
+    }
+
+    .camera-capture-btn {
+        width: 60px;
+        height: 60px;
+    }
+
+    .capture-inner {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* iOS Safari 专用修复 */
+@supports (-webkit-touch-callout: none) {
+    .camera-modal {
+        /* 强制硬件加速 */
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+
+    .camera-container {
+        height: -webkit-fill-available;
+        min-height: -webkit-fill-available;
+    }
+
+    #cameraVideo {
+        /* iOS 视频播放优化 */
+        -webkit-playsinline: true;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0) scaleX(-1);
+    }
+
+    .camera-preview.rear-camera #cameraVideo {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+/* 加载动画 */
+@keyframes cameraLoading {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.camera-status .loading-spinner {
+    animation: cameraLoading 1s linear infinite;
+}
+
+/* 拍照闪光效果 */
+@keyframes cameraFlash {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.camera-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    pointer-events: none;
+    animation: cameraFlash 0.3s ease;
+    z-index: 10003;
+}
+
+/* 权限提示样式 */
+.camera-permission-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    padding: 2rem;
+    max-width: 300px;
+}
+
+.camera-permission-hint h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+}
+
+.camera-permission-hint p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    line-height: 1.4;
+}
+
+/* 错误状态样式 */
+.camera-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #ff4757;
+    padding: 2rem;
+    max-width: 300px;
+}
+
+.camera-error .error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.camera-error h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+}
+
+.camera-error p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    line-height: 1.4;
+}
