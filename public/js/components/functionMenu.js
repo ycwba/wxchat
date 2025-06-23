@@ -17,28 +17,10 @@ const FunctionMenu = {
             action: 'album'
         },
         {
-            id: 'video',
-            icon: '📹',
-            title: '视频通话',
-            action: 'video'
-        },
-        {
             id: 'location',
             icon: '📍',
             title: '位置',
             action: 'location'
-        },
-        {
-            id: 'red-packet',
-            icon: '🧧',
-            title: '红包',
-            action: 'redPacket'
-        },
-        {
-            id: 'transfer',
-            icon: '💰',
-            title: '转账',
-            action: 'transfer'
         },
         {
             id: 'voice-input',
@@ -57,18 +39,6 @@ const FunctionMenu = {
             icon: '📁',
             title: '文件',
             action: 'file'
-        },
-        {
-            id: 'music',
-            icon: '🎵',
-            title: '音乐',
-            action: 'music'
-        },
-        {
-            id: 'card',
-            icon: '👤',
-            title: '个人名片',
-            action: 'card'
         },
         {
             id: 'favorite',
@@ -197,17 +167,8 @@ const FunctionMenu = {
             case 'album':
                 this.handleAlbum();
                 break;
-            case 'video':
-                this.handleVideo();
-                break;
             case 'location':
                 this.handleLocation();
-                break;
-            case 'redPacket':
-                this.handleRedPacket();
-                break;
-            case 'transfer':
-                this.handleTransfer();
                 break;
             case 'voiceInput':
                 this.handleVoiceInput();
@@ -217,12 +178,6 @@ const FunctionMenu = {
                 break;
             case 'file':
                 this.handleFile();
-                break;
-            case 'music':
-                this.handleMusic();
-                break;
-            case 'card':
-                this.handleCard();
                 break;
             case 'favorite':
                 this.handleFavorite();
@@ -294,24 +249,9 @@ const FunctionMenu = {
         }
     },
 
-    // 视频通话功能
-    handleVideo() {
-        this.showComingSoon('视频通话');
-    },
-
     // 位置功能
     handleLocation() {
         this.insertTextToInput('📍 [位置信息]');
-    },
-
-    // 红包功能
-    handleRedPacket() {
-        this.insertTextToInput('🧧 [红包] 恭喜发财，大吉大利！');
-    },
-
-    // 转账功能
-    handleTransfer() {
-        this.insertTextToInput('💰 [转账] 已向您转账');
     },
 
     // 语音输入功能
@@ -336,16 +276,6 @@ const FunctionMenu = {
         } else {
             this.showComingSoon('文件');
         }
-    },
-
-    // 音乐功能
-    handleMusic() {
-        this.insertTextToInput('🎵 [音乐] 分享了一首歌曲');
-    },
-
-    // 个人名片功能
-    handleCard() {
-        this.insertTextToInput('👤 [个人名片] 推荐了一个联系人');
     },
 
     // 收藏功能
