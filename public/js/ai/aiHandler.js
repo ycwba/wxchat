@@ -265,21 +265,9 @@ const AIHandler = {
         try {
             console.log('AIHandler: 存储AI响应到数据库', { content });
 
-            const response = await fetch('/api/ai/message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                },
-                body: JSON.stringify({
-                    content: content,
-                    deviceId: 'ai-system',
-                    type: 'ai_response'
-                })
-            });
-
-            if (response.ok) {
-                const result = await response.json();
+            // 使用API模块的sendAIMessage方法
+            if (window.API && typeof API.sendAIMessage === 'function') {
+                const result = await API.sendAIMessage(content, 'ai-system', 'ai_response');
                 console.log('AIHandler: AI响应已存储到数据库', result);
 
                 // 触发消息刷新，显示新的AI响应
@@ -287,10 +275,9 @@ const AIHandler = {
                     await MessageHandler.loadMessages(true);
                 }
 
-                return result.data.id;
+                return result.id;
             } else {
-                console.error('AIHandler: AI响应存储失败');
-                throw new Error('存储AI响应失败');
+                throw new Error('API.sendAIMessage 方法不可用');
             }
         } catch (error) {
             console.error('AIHandler: 存储AI响应时出错', error);

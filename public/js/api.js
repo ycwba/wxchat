@@ -95,7 +95,7 @@ const API = {
                 content,
                 deviceId
             });
-            
+
             if (response.success) {
                 return response.data;
             } else {
@@ -104,6 +104,29 @@ const API = {
         } catch (error) {
             console.error('发送消息失败:', error);
             throw new Error(CONFIG.ERRORS.MESSAGE_SEND_FAILED);
+        }
+    },
+
+    // 发送AI消息
+    async sendAIMessage(content, deviceId = 'ai-system', type = 'ai_response') {
+        try {
+            console.log('API: 发送AI消息', { content, deviceId, type });
+
+            const response = await this.post('/api/ai/message', {
+                content,
+                deviceId,
+                type
+            });
+
+            if (response && response.success) {
+                console.log('API: AI消息发送成功', response);
+                return response.data;
+            } else {
+                throw new Error(response?.error || 'AI消息发送失败');
+            }
+        } catch (error) {
+            console.error('API: AI消息发送失败', error);
+            throw error;
         }
     },
     
