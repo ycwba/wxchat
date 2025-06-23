@@ -187,7 +187,7 @@ class AIChatComponent {
 
             // 开始流式接收
             this.currentStreamingMessage = aiMessage;
-            const streamGenerator = aiService.sendMessage(userMessage);
+            const streamGenerator = await aiService.sendMessage(userMessage);
 
             for await (const chunk of streamGenerator) {
                 if (!this.isAIMode) break; // 如果退出AI模式，停止处理
@@ -276,6 +276,13 @@ class AIChatComponent {
                     <div class="thinking-animation">
                         <span></span><span></span><span></span>
                     </div>
+                </div>
+            `;
+        } else if (message.type === 'error') {
+            contentHTML = `
+                <div class="message-avatar">⚠️</div>
+                <div class="message-content error-content">
+                    <div class="message-text">${this.escapeHtml(message.content)}</div>
                 </div>
             `;
         }

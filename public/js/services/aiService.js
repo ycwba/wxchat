@@ -59,7 +59,7 @@ class AIService {
         try {
             // 获取认证token
             const token = localStorage.getItem('authToken');
-            
+
             const response = await fetch(this.apiEndpoint, {
                 method: 'POST',
                 headers: {
@@ -70,10 +70,11 @@ class AIService {
             });
 
             if (!response.ok) {
-                throw new Error(`AI API请求失败: ${response.status} ${response.statusText}`);
+                throw new Error(`AI API请求失败: ${response.status}`);
             }
 
             if (config.stream) {
+                // 直接返回异步生成器
                 return this.handleStreamResponse(response);
             } else {
                 return this.handleNormalResponse(response);
