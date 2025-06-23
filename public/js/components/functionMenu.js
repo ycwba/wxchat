@@ -160,7 +160,7 @@ const FunctionMenu = {
     handleAI() {
         console.log('启动AI对话功能');
         // 触发AI对话模式事件
-        const event = new CustomEvent('functionMenu:aiMode', {
+        const event = new CustomEvent('functionMenu:itemClick', {
             detail: { action: 'ai', mode: 'start' }
         });
         document.dispatchEvent(event);

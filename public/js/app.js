@@ -53,16 +53,22 @@ class WeChatApp {
             }
 
             // 初始化AI组件
-            if (typeof AIService !== 'undefined') {
+            console.log('App: 检查AI组件可用性...');
+            console.log('App: window.AIService =', typeof window.AIService);
+            console.log('App: window.AIChatComponent =', typeof window.AIChatComponent);
+
+            if (typeof window.AIService !== 'undefined') {
                 console.log('App: 初始化AI服务');
-                AIService.init();
-                window.AIService = AIService;
+                window.AIService.init();
+            } else {
+                console.warn('App: AI服务未找到');
             }
 
-            if (typeof AIChatComponent !== 'undefined') {
+            if (typeof window.AIChatComponent !== 'undefined') {
                 console.log('App: 初始化AI聊天组件');
-                AIChatComponent.init();
-                window.AIChatComponent = AIChatComponent;
+                window.AIChatComponent.init();
+            } else {
+                console.warn('App: AI聊天组件未找到');
             }
 
             // 初始化PWA功能
