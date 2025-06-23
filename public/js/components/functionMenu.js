@@ -2,49 +2,79 @@
 // 提供Web端适用的功能选项界面框架
 
 const FunctionMenu = {
-    // 菜单配置
+    // 菜单配置 - 微信风格
     menuItems: [
         {
-            id: 'quick-reply',
-            icon: '💬',
-            title: '快速回复',
-            description: '常用回复模板',
-            action: 'quickReply'
+            id: 'photo',
+            icon: '📷',
+            title: '拍摄',
+            action: 'photo'
+        },
+        {
+            id: 'album',
+            icon: '🖼️',
+            title: '相册',
+            action: 'album'
+        },
+        {
+            id: 'video',
+            icon: '📹',
+            title: '视频通话',
+            action: 'video'
+        },
+        {
+            id: 'location',
+            icon: '📍',
+            title: '位置',
+            action: 'location'
+        },
+        {
+            id: 'red-packet',
+            icon: '🧧',
+            title: '红包',
+            action: 'redPacket'
+        },
+        {
+            id: 'transfer',
+            icon: '💰',
+            title: '转账',
+            action: 'transfer'
+        },
+        {
+            id: 'voice-input',
+            icon: '🎤',
+            title: '语音输入',
+            action: 'voiceInput'
         },
         {
             id: 'emoji',
             icon: '😊',
-            title: '表情符号',
-            description: '插入表情',
+            title: '表情',
             action: 'emoji'
         },
         {
-            id: 'markdown',
-            icon: '📝',
-            title: 'Markdown',
-            description: '格式化文本',
-            action: 'markdown'
+            id: 'file',
+            icon: '📁',
+            title: '文件',
+            action: 'file'
         },
         {
-            id: 'code-snippet',
-            icon: '💻',
-            title: '代码片段',
-            description: '插入代码块',
-            action: 'codeSnippet'
+            id: 'music',
+            icon: '🎵',
+            title: '音乐',
+            action: 'music'
         },
         {
-            id: 'clear-chat',
-            icon: '🗑️',
-            title: '清空聊天',
-            description: '清除所有消息',
-            action: 'clearChat'
+            id: 'card',
+            icon: '👤',
+            title: '个人名片',
+            action: 'card'
         },
         {
-            id: 'settings',
-            icon: '⚙️',
-            title: '设置',
-            description: '应用设置',
-            action: 'settings'
+            id: 'favorite',
+            icon: '⭐',
+            title: '收藏',
+            action: 'favorite'
         }
     ],
 
@@ -77,9 +107,10 @@ const FunctionMenu = {
         console.log('FunctionMenu: 创建菜单元素');
         const menuHTML = `
             <div class="function-menu" id="functionMenu">
+                <div class="function-menu-overlay"></div>
                 <div class="function-menu-content">
                     <div class="function-menu-header">
-                        <h3>功能菜单</h3>
+                        <h3>更多功能</h3>
                         <button class="function-menu-close" id="functionMenuClose">
                             <svg viewBox="0 0 24 24" width="16" height="16">
                                 <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
@@ -90,7 +121,6 @@ const FunctionMenu = {
                         ${this.generateMenuItems()}
                     </div>
                 </div>
-                <div class="function-menu-overlay"></div>
             </div>
         `;
 
@@ -99,14 +129,13 @@ const FunctionMenu = {
         console.log('FunctionMenu: 菜单元素创建完成');
     },
 
-    // 生成菜单项HTML
+    // 生成菜单项HTML - 微信风格
     generateMenuItems() {
         return this.menuItems.map(item => `
             <div class="function-menu-item" data-action="${item.action}" data-id="${item.id}">
                 <div class="function-menu-item-icon">${item.icon}</div>
                 <div class="function-menu-item-content">
                     <div class="function-menu-item-title">${item.title}</div>
-                    <div class="function-menu-item-description">${item.description}</div>
                 </div>
             </div>
         `).join('');
@@ -154,68 +183,130 @@ const FunctionMenu = {
         this.hide();
     },
 
-    // 执行功能动作
+    // 执行功能动作 - 微信风格功能
     executeAction(action, itemId) {
         switch (action) {
-            case 'quickReply':
-                this.handleQuickReply();
+            case 'photo':
+                this.handlePhoto();
+                break;
+            case 'album':
+                this.handleAlbum();
+                break;
+            case 'video':
+                this.handleVideo();
+                break;
+            case 'location':
+                this.handleLocation();
+                break;
+            case 'redPacket':
+                this.handleRedPacket();
+                break;
+            case 'transfer':
+                this.handleTransfer();
+                break;
+            case 'voiceInput':
+                this.handleVoiceInput();
                 break;
             case 'emoji':
                 this.handleEmoji();
                 break;
-            case 'markdown':
-                this.handleMarkdown();
+            case 'file':
+                this.handleFile();
                 break;
-            case 'codeSnippet':
-                this.handleCodeSnippet();
+            case 'music':
+                this.handleMusic();
                 break;
-            case 'clearChat':
-                this.handleClearChat();
+            case 'card':
+                this.handleCard();
                 break;
-            case 'settings':
-                this.handleSettings();
+            case 'favorite':
+                this.handleFavorite();
                 break;
             default:
                 console.log(`未实现的功能: ${action}`);
+                this.showComingSoon(action);
         }
     },
 
-    // 快速回复功能
-    handleQuickReply() {
-        const replies = ['好的', '收到', '谢谢', '没问题', '稍等一下'];
-        const randomReply = replies[Math.floor(Math.random() * replies.length)];
-        this.insertTextToInput(randomReply);
+    // 拍摄功能
+    handlePhoto() {
+        this.showComingSoon('拍摄');
+    },
+
+    // 相册功能
+    handleAlbum() {
+        // 触发文件选择
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.accept = 'image/*';
+            fileInput.click();
+        } else {
+            this.showComingSoon('相册');
+        }
+    },
+
+    // 视频通话功能
+    handleVideo() {
+        this.showComingSoon('视频通话');
+    },
+
+    // 位置功能
+    handleLocation() {
+        this.insertTextToInput('📍 [位置信息]');
+    },
+
+    // 红包功能
+    handleRedPacket() {
+        this.insertTextToInput('🧧 [红包] 恭喜发财，大吉大利！');
+    },
+
+    // 转账功能
+    handleTransfer() {
+        this.insertTextToInput('💰 [转账] 已向您转账');
+    },
+
+    // 语音输入功能
+    handleVoiceInput() {
+        this.showComingSoon('语音输入');
     },
 
     // 表情功能
     handleEmoji() {
-        const emojis = ['😊', '👍', '❤️', '😂', '🎉', '👏', '🔥', '💯'];
+        const emojis = ['😊', '👍', '❤️', '😂', '🎉', '👏', '🔥', '💯', '🥰', '😍', '🤔', '😅'];
         const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
         this.insertTextToInput(randomEmoji);
     },
 
-    // Markdown功能
-    handleMarkdown() {
-        this.insertTextToInput('**粗体文本**');
-    },
-
-    // 代码片段功能
-    handleCodeSnippet() {
-        this.insertTextToInput('```\n// 代码片段\nconsole.log("Hello World");\n```');
-    },
-
-    // 清空聊天功能
-    handleClearChat() {
-        if (confirm('确定要清空所有聊天记录吗？')) {
-            // 触发清空聊天事件
-            const event = new CustomEvent('functionMenu:clearChat');
-            document.dispatchEvent(event);
+    // 文件功能
+    handleFile() {
+        // 触发文件选择
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.accept = '*/*';
+            fileInput.click();
+        } else {
+            this.showComingSoon('文件');
         }
     },
 
-    // 设置功能
-    handleSettings() {
-        alert('设置功能待实现');
+    // 音乐功能
+    handleMusic() {
+        this.insertTextToInput('🎵 [音乐] 分享了一首歌曲');
+    },
+
+    // 个人名片功能
+    handleCard() {
+        this.insertTextToInput('👤 [个人名片] 推荐了一个联系人');
+    },
+
+    // 收藏功能
+    handleFavorite() {
+        this.insertTextToInput('⭐ [收藏] 分享了一个收藏');
+    },
+
+    // 显示即将推出提示
+    showComingSoon(feature) {
+        this.insertTextToInput(`🚧 ${feature}功能即将推出，敬请期待！`);
     },
 
     // 向输入框插入文本
@@ -244,7 +335,10 @@ const FunctionMenu = {
     show() {
         const menu = document.getElementById('functionMenu');
         if (menu) {
+            console.log('FunctionMenu: 显示菜单');
             menu.classList.add('show');
+        } else {
+            console.error('FunctionMenu: 无法显示菜单，元素不存在');
         }
     },
 
@@ -252,7 +346,10 @@ const FunctionMenu = {
     hide() {
         const menu = document.getElementById('functionMenu');
         if (menu) {
+            console.log('FunctionMenu: 隐藏菜单');
             menu.classList.remove('show');
+        } else {
+            console.error('FunctionMenu: 无法隐藏菜单，元素不存在');
         }
     },
 
