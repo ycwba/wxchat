@@ -8,7 +8,6 @@ const ImageGenHandler = {
     
     // 初始化
     init() {
-        console.log('ImageGenHandler: 初始化图片生成处理器');
         this.bindEvents();
     },
     
@@ -30,8 +29,6 @@ const ImageGenHandler = {
         try {
             this.isGenerating = true;
             const { prompt, negativePrompt, imageSize, guidanceScale, numInferenceSteps } = options;
-            
-            console.log('ImageGenHandler: 开始图片生成流程', options);
             
             // 1. 验证提示词
             const validation = ImageGenAPI.validatePrompt(prompt);
@@ -73,12 +70,6 @@ const ImageGenHandler = {
                 lastModified: timestamp
             });
 
-            console.log('ImageGenHandler: 准备上传文件', {
-                fileName: file.name,
-                fileSize: file.size,
-                fileType: file.type
-            });
-
             const deviceId = Utils.getDeviceId();
             const uploadResult = await API.uploadFile(file, deviceId);
             
@@ -93,12 +84,6 @@ const ImageGenHandler = {
                 await MessageHandler.loadMessages(true); // 强制滚动到底部
             }, 500);
             
-            console.log('ImageGenHandler: 图片生成完成', {
-                prompt,
-                fileId: uploadResult.fileId,
-                fileName: uploadResult.fileName
-            });
-            
             return {
                 success: true,
                 data: {
@@ -110,8 +95,6 @@ const ImageGenHandler = {
             };
             
         } catch (error) {
-            console.error('ImageGenHandler: 图片生成失败', error);
-
             // 根据错误类型显示不同的错误信息
             let errorMessage = CONFIG.ERRORS.IMAGE_GEN_FAILED;
 
@@ -204,7 +187,6 @@ const ImageGenHandler = {
             this.currentGenerationId = null;
             
             UI.showInfo('图片生成已取消');
-            console.log('ImageGenHandler: 图片生成已取消');
         }
     },
     
@@ -226,5 +208,3 @@ const ImageGenHandler = {
 
 // 导出到全局
 window.ImageGenHandler = ImageGenHandler;
-
-console.log('ImageGenHandler: 图片生成处理器已加载');

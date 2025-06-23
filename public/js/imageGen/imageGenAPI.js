@@ -15,8 +15,6 @@ const ImageGenAPI = {
         this.currentController = new AbortController();
         
         try {
-            console.log('ImageGenAPI: 开始AI图片生成请求', { prompt, options });
-            
             // 构建请求参数
             const requestBody = {
                 model: 'Kwai-Kolors/Kolors',
@@ -53,8 +51,7 @@ const ImageGenAPI = {
             }
             
             const result = await response.json();
-            console.log('ImageGenAPI: 图片生成成功', result);
-            
+
             return {
                 success: true,
                 data: {
@@ -68,15 +65,13 @@ const ImageGenAPI = {
             
         } catch (error) {
             if (error.name === 'AbortError') {
-                console.log('ImageGenAPI: 请求被取消');
                 return {
                     success: false,
                     error: '请求被取消',
                     cancelled: true
                 };
             }
-            
-            console.error('ImageGenAPI: 图片生成失败', error);
+
             return {
                 success: false,
                 error: error.message || '图片生成失败'
@@ -87,8 +82,6 @@ const ImageGenAPI = {
     // 下载图片数据
     async downloadImageData(imageUrl) {
         try {
-            console.log('ImageGenAPI: 开始下载图片数据', { imageUrl });
-            
             const response = await fetch(imageUrl);
             
             if (!response.ok) {
@@ -96,12 +89,10 @@ const ImageGenAPI = {
             }
             
             const blob = await response.blob();
-            console.log('ImageGenAPI: 图片下载成功', { size: blob.size, type: blob.type });
-            
+
             return blob;
             
         } catch (error) {
-            console.error('ImageGenAPI: 图片下载失败', error);
             throw new Error(`图片下载失败: ${error.message}`);
         }
     },
@@ -160,5 +151,3 @@ const ImageGenAPI = {
 
 // 导出到全局
 window.ImageGenAPI = ImageGenAPI;
-
-console.log('ImageGenAPI: 图片生成API模块已加载');

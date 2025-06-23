@@ -12,12 +12,9 @@ const AIHandler = {
     
     // 初始化AI处理器
     init() {
-        console.log('AIHandler: 初始化AI处理器');
-        
         // 验证AI配置
         try {
             AIAPI.validateConfig();
-            console.log('AIHandler: AI配置验证成功');
         } catch (error) {
             console.error('AIHandler: AI配置验证失败', error);
             return false;
@@ -54,9 +51,7 @@ const AIHandler = {
     // 切换AI模式
     toggleAIMode() {
         this.isAIMode = !this.isAIMode;
-        
-        console.log('AIHandler: AI模式切换', { isAIMode: this.isAIMode });
-        
+
         // 更新UI状态
         if (window.UI && typeof UI.updateAIMode === 'function') {
             UI.updateAIMode(this.isAIMode);
@@ -79,7 +74,6 @@ const AIHandler = {
     // 处理AI消息
     async handleAIMessage(content) {
         if (this.isProcessing) {
-            console.log('AIHandler: AI正在处理中，忽略新请求');
             return;
         }
         
@@ -181,7 +175,6 @@ const AIHandler = {
 
             if (response.ok) {
                 const result = await response.json();
-                console.log('AIHandler: 思考消息已存储到数据库', result);
 
                 // 触发消息刷新
                 if (window.MessageHandler && typeof MessageHandler.loadMessages === 'function') {
@@ -228,8 +221,6 @@ const AIHandler = {
     
     // 完成思考过程
     completeThinking(thinkingId, thinking) {
-        console.log('AIHandler: 思考过程完成', { thinkingId, thinkingLength: thinking.length });
-        
         // 开始显示AI响应
         this.startAIResponse();
     },
@@ -250,7 +241,6 @@ const AIHandler = {
         };
 
         // 添加到UI
-        console.log('AIHandler: 准备添加响应消息到UI', { responseMessage });
         if (window.UI && typeof UI.addAIMessage === 'function') {
             UI.addAIMessage(responseMessage);
         } else {
@@ -432,10 +422,6 @@ const AIHandler = {
     
     // 完成AI响应
     async completeAIResponse(result) {
-        console.log('AIHandler: AI响应完成', {
-            thinkingLength: result.thinking?.length || 0,
-            responseLength: result.response?.length || 0
-        });
 
         try {
             // 将最终的AI响应存储到数据库
@@ -454,7 +440,6 @@ const AIHandler = {
 
             if (response.ok) {
                 const apiResult = await response.json();
-                console.log('AIHandler: AI响应已存储到数据库', apiResult);
 
                 // 触发消息刷新，显示完整的对话
                 if (window.MessageHandler && typeof MessageHandler.loadMessages === 'function') {
@@ -522,8 +507,6 @@ const AIHandler = {
     // 取消当前AI请求
     cancelCurrentRequest() {
         if (this.isProcessing) {
-            console.log('AIHandler: 取消当前AI请求');
-            
             // 取消API请求
             if (window.AIAPI && typeof AIAPI.cancelCurrentRequest === 'function') {
                 AIAPI.cancelCurrentRequest();

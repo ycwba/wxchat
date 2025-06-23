@@ -37,16 +37,13 @@ class WeChatApp {
             FileUpload.init();
 
             // 初始化功能组件 - 确保在UI初始化之后
-            console.log('App: 开始初始化功能组件');
             if (typeof FunctionMenu !== 'undefined') {
-                console.log('App: 初始化功能菜单');
                 FunctionMenu.init();
                 // 将组件暴露到全局
                 window.FunctionMenu = FunctionMenu;
             }
 
             if (typeof FunctionButton !== 'undefined') {
-                console.log('App: 初始化功能按钮');
                 FunctionButton.init();
                 // 将组件暴露到全局，供UI模块使用
                 window.FunctionButton = FunctionButton;
@@ -58,37 +55,27 @@ class WeChatApp {
             }
 
             // 初始化AI模块
-            console.log('App: 开始初始化AI模块');
             if (typeof AIUI !== 'undefined') {
-                console.log('App: 初始化AI UI');
                 AIUI.init();
                 window.AIUI = AIUI;
             }
 
             if (typeof AIHandler !== 'undefined') {
-                console.log('App: 初始化AI处理器');
                 const aiInitSuccess = AIHandler.init();
                 if (aiInitSuccess) {
                     window.AIHandler = AIHandler;
-                    console.log('App: AI模块初始化成功');
-                } else {
-                    console.warn('App: AI模块初始化失败，AI功能将不可用');
                 }
             }
 
             // 初始化AI图片生成模块
-            console.log('App: 开始初始化AI图片生成模块');
             if (typeof ImageGenUI !== 'undefined') {
-                console.log('App: 初始化图片生成UI');
                 ImageGenUI.init();
                 window.ImageGenUI = ImageGenUI;
             }
 
             if (typeof ImageGenHandler !== 'undefined') {
-                console.log('App: 初始化图片生成处理器');
                 ImageGenHandler.init();
                 window.ImageGenHandler = ImageGenHandler;
-                console.log('App: AI图片生成模块初始化成功');
             }
 
             // 设置初始连接状态
@@ -225,8 +212,6 @@ class WeChatApp {
 
     // 处理功能菜单动作
     handleFunctionMenuAction(action, itemId) {
-        console.log(`功能菜单动作: ${action}, 项目ID: ${itemId}`);
-
         // 这里可以根据需要添加更多的功能处理逻辑
         switch (action) {
             case 'quickReply':
@@ -246,7 +231,7 @@ class WeChatApp {
                 this.showSettings();
                 break;
             default:
-                console.log(`未处理的功能: ${action}`);
+                break;
         }
     }
 

@@ -301,13 +301,6 @@ api.post('/files/upload', async (c) => {
     const file = formData.get('file')
     const deviceId = formData.get('deviceId')
 
-    console.log('文件上传请求:', {
-      fileName: file?.name,
-      fileSize: file?.size,
-      fileType: file?.type,
-      deviceId
-    })
-
     if (!file || !deviceId) {
       return c.json({
         success: false,
@@ -329,8 +322,6 @@ api.post('/files/upload', async (c) => {
     const fileExtension = file.name.split('.').pop() || 'bin'
     const r2Key = `${timestamp}-${randomStr}.${fileExtension}`
 
-    console.log('准备上传到R2:', { r2Key, fileSize: file.size })
-
     // 上传到R2
     try {
       await R2.put(r2Key, file.stream(), {
@@ -339,7 +330,6 @@ api.post('/files/upload', async (c) => {
           contentDisposition: `attachment; filename="${file.name}"`
         }
       })
-      console.log('R2上传成功:', r2Key)
     } catch (r2Error) {
       console.error('R2上传失败:', r2Error)
       return c.json({
@@ -364,8 +354,6 @@ api.post('/files/upload', async (c) => {
         deviceId
       ).run()
 
-      console.log('文件信息保存成功:', fileResult.meta.last_row_id)
-
       // 创建文件消息
       const messageStmt = DB.prepare(`
         INSERT INTO messages (type, file_id, device_id)
@@ -373,8 +361,6 @@ api.post('/files/upload', async (c) => {
       `)
 
       await messageStmt.bind('file', fileResult.meta.last_row_id, deviceId).run()
-
-      console.log('文件消息创建成功')
 
       return c.json({
         success: true,

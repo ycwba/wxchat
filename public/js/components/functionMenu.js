@@ -96,15 +96,12 @@ const FunctionMenu = {
     // 初始化菜单
     init() {
         if (this.isInitialized) {
-            console.log('FunctionMenu: 已经初始化过了');
             return;
         }
 
-        console.log('FunctionMenu: 开始初始化');
         this.createMenuElement();
         this.bindEvents();
         this.isInitialized = true;
-        console.log('FunctionMenu: 初始化完成');
     },
 
     // 创建菜单DOM元素
@@ -112,11 +109,8 @@ const FunctionMenu = {
         // 检查是否已存在
         const existingMenu = document.getElementById('functionMenu');
         if (existingMenu) {
-            console.log('FunctionMenu: 菜单元素已存在');
             return;
         }
-
-        console.log('FunctionMenu: 创建菜单元素');
         const menuHTML = `
             <div class="function-menu" id="functionMenu">
                 <div class="function-menu-overlay"></div>
@@ -138,7 +132,6 @@ const FunctionMenu = {
 
         // 插入到body中
         document.body.insertAdjacentHTML('beforeend', menuHTML);
-        console.log('FunctionMenu: 菜单元素创建完成');
     },
 
     // 生成菜单项HTML - 微信风格
@@ -241,7 +234,6 @@ const FunctionMenu = {
                 this.handleAiImageGen();
                 break;
             default:
-                console.log(`未实现的功能: ${action}`);
                 this.showComingSoon(action);
         }
     },
@@ -324,8 +316,6 @@ const FunctionMenu = {
 
     // AI助手功能
     handleAiChat() {
-        console.log('FunctionMenu: 启动AI助手功能');
-
         // 检查AI功能是否可用
         if (!CONFIG.AI.ENABLED) {
             this.insertTextToInput('🤖 AI功能暂未启用');
@@ -355,8 +345,6 @@ const FunctionMenu = {
 
     // AI图片生成功能
     handleAiImageGen() {
-        console.log('FunctionMenu: 启动AI图片生成功能');
-
         // 检查图片生成功能是否可用
         if (!CONFIG.IMAGE_GEN.ENABLED) {
             this.insertTextToInput('🎨 AI图片生成功能暂未启用');
@@ -412,7 +400,6 @@ const FunctionMenu = {
     show() {
         const menu = document.getElementById('functionMenu');
         if (menu) {
-            console.log('FunctionMenu: 显示菜单');
             menu.classList.add('show');
         } else {
             console.error('FunctionMenu: 无法显示菜单，元素不存在');
@@ -423,7 +410,6 @@ const FunctionMenu = {
     hide() {
         const menu = document.getElementById('functionMenu');
         if (menu) {
-            console.log('FunctionMenu: 隐藏菜单');
             menu.classList.remove('show');
         } else {
             console.error('FunctionMenu: 无法隐藏菜单，元素不存在');

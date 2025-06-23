@@ -589,7 +589,7 @@ const MessageHandler = {
             const success = await API.syncDevice(deviceId, deviceName);
             
             if (success) {
-                console.log('设备同步成功');
+                // 设备同步成功
             }
             
         } catch (error) {

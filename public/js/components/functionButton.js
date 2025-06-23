@@ -26,11 +26,9 @@ const FunctionButton = {
 
     // 执行实际初始化
     doInit() {
-        console.log('FunctionButton: 开始初始化');
         this.cacheElements();
         this.bindEvents();
         this.updateVisibility();
-        console.log('FunctionButton: 初始化完成', this.elements);
     },
 
     // 缓存DOM元素
@@ -41,18 +39,14 @@ const FunctionButton = {
         // 检查关键元素是否存在
         if (!this.elements.functionButton) {
             console.error('FunctionButton: 找不到功能按钮元素 #functionButton');
-        } else {
-            console.log('FunctionButton: 功能按钮元素已找到');
         }
     },
 
     // 绑定事件
     bindEvents() {
         if (this.elements.functionButton) {
-            console.log('FunctionButton: 绑定点击事件');
             // 点击功能按钮显示菜单
             this.elements.functionButton.addEventListener('click', (e) => {
-                console.log('FunctionButton: 按钮被点击');
                 e.preventDefault();
                 e.stopPropagation();
                 this.toggleMenu();

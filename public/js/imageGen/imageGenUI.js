@@ -8,7 +8,6 @@ const ImageGenUI = {
     
     // 初始化
     init() {
-        console.log('ImageGenUI: 初始化图片生成UI组件');
         this.bindEvents();
     },
     
@@ -34,8 +33,6 @@ const ImageGenUI = {
         if (this.isModalOpen) {
             return;
         }
-        
-        console.log('ImageGenUI: 显示图片生成模态框');
         
         const modal = this.createImageGenModal();
         document.body.appendChild(modal);
@@ -216,7 +213,6 @@ const ImageGenUI = {
             document.dispatchEvent(event);
             
         } catch (error) {
-            console.error('ImageGenUI: 生成请求失败', error);
             UI.showError(`生成失败: ${error.message}`);
             
             // 恢复按钮状态
@@ -230,8 +226,6 @@ const ImageGenUI = {
         if (!this.isModalOpen || !this.currentModal) {
             return;
         }
-        
-        console.log('ImageGenUI: 关闭图片生成模态框');
         
         // 移除模态框
         if (this.currentModal.parentNode) {
@@ -271,5 +265,3 @@ const ImageGenUI = {
 
 // 导出到全局
 window.ImageGenUI = ImageGenUI;
-
-console.log('ImageGenUI: 图片生成UI组件已加载');
