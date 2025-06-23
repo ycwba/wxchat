@@ -238,29 +238,48 @@ const FunctionMenu = {
         }
     },
 
-    // 拍摄功能
+    // 拍摄功能 - 调用系统原生相机
     handlePhoto() {
-        // 检查是否支持相机
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            UI.showError('您的设备不支持相机功能');
-            return;
-        }
+        // 创建隐藏的文件输入元素，设置为调用相机
+        const cameraInput = document.createElement('input');
+        cameraInput.type = 'file';
+        cameraInput.accept = 'image/*';
+        cameraInput.capture = 'environment'; // 调用后置摄像头
+        cameraInput.style.display = 'none';
 
-        // 调用相机拍照组件
-        if (window.CameraCapture && typeof CameraCapture.openCamera === 'function') {
-            CameraCapture.openCamera();
-        } else {
-            // 如果相机组件未加载，显示提示并尝试加载
-            UI.showError('相机组件正在加载中...');
+        // 监听文件选择
+        cameraInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    // 显示上传状态
+                    UI.showSuccess('📸 正在处理照片...');
 
-            // 尝试初始化相机组件
-            setTimeout(() => {
-                if (window.CameraCapture && typeof CameraCapture.init === 'function') {
-                    CameraCapture.init();
-                    CameraCapture.openCamera();
+                    // 上传文件
+                    const deviceId = Utils.getDeviceId();
+                    await API.uploadFile(file, deviceId);
+
+                    // 刷新消息列表
+                    setTimeout(async () => {
+                        await MessageHandler.loadMessages(true);
+                    }, 500);
+
+                    UI.showSuccess('📸 照片发送成功！');
+                } catch (error) {
+                    console.error('拍照上传失败:', error);
+                    UI.showError('照片上传失败，请重试');
                 }
-            }, 100);
-        }
+            }
+
+            // 清理临时元素
+            if (cameraInput.parentNode) {
+                cameraInput.parentNode.removeChild(cameraInput);
+            }
+        });
+
+        // 添加到DOM并触发点击
+        document.body.appendChild(cameraInput);
+        cameraInput.click();
     },
 
     // 相册功能

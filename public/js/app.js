@@ -49,12 +49,6 @@ class WeChatApp {
                 window.FunctionButton = FunctionButton;
             }
 
-            // 初始化相机拍照组件
-            if (typeof CameraCapture !== 'undefined') {
-                CameraCapture.init();
-                window.CameraCapture = CameraCapture;
-            }
-
             // 初始化PWA功能
             if (typeof PWA !== 'undefined') {
                 PWA.init();
@@ -357,11 +351,6 @@ if (typeof ImageGenUI !== 'undefined') {
 }
 if (typeof ImageGenHandler !== 'undefined') {
     window.ImageGenHandler = ImageGenHandler;
-}
-
-// 相机拍照组件全局导出
-if (typeof CameraCapture !== 'undefined') {
-    window.CameraCapture = CameraCapture;
 }
 
 // 开发模式下的调试信息
