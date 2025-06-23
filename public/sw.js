@@ -1,9 +1,9 @@
 // 微信文件传输助手 Service Worker
 // 提供离线缓存和后台同步功能
 
-const CACHE_NAME = 'wxchat-v1.0.0';
-const STATIC_CACHE_NAME = 'wxchat-static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'wxchat-dynamic-v1.0.0';
+const CACHE_NAME = 'wxchat-v1.0.1';
+const STATIC_CACHE_NAME = 'wxchat-static-v1.0.1';
+const DYNAMIC_CACHE_NAME = 'wxchat-dynamic-v1.0.1';
 
 // 需要缓存的静态资源
 const STATIC_ASSETS = [
@@ -38,6 +38,13 @@ const STATIC_ASSETS = [
 const NETWORK_FIRST_PATTERNS = [
   /\/api\//,
   /\/auth\//
+];
+
+// 不应该被缓存的API请求（实时数据）
+const NO_CACHE_PATTERNS = [
+  /\/api\/messages/,
+  /\/api\/sse/,
+  /\/api\/poll/
 ];
 
 // 需要缓存优先的资源
@@ -123,6 +130,11 @@ async function handleFetch(request) {
   const url = new URL(request.url);
   
   try {
+    // 不缓存的API请求：直接网络请求
+    if (NO_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
+      return await fetch(request);
+    }
+
     // API 请求：网络优先策略
     if (NETWORK_FIRST_PATTERNS.some(pattern => pattern.test(url.pathname))) {
       return await networkFirst(request);
