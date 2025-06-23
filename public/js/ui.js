@@ -462,67 +462,71 @@ const UI = {
         return div.innerHTML;
     },
     
-    // 显示错误消息
+    // 显示错误消息 - 弹窗已禁用，避免移动端遮挡输入框
     showError(message) {
         Utils.showNotification(message, 'error');
-        
-        // 可以添加更明显的错误提示UI
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        errorDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ff4757;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease-out;
-        `;
-        
-        document.body.appendChild(errorDiv);
-        
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 3000);
+
+        // 错误弹窗已禁用，避免遮挡输入框，只在控制台输出
+        console.error('UI错误:', message);
+
+        // const errorDiv = document.createElement('div');
+        // errorDiv.className = 'error-message';
+        // errorDiv.textContent = message;
+        // errorDiv.style.cssText = `
+        //     position: fixed;
+        //     top: 20px;
+        //     left: 50%;
+        //     transform: translateX(-50%);
+        //     background: #ff4757;
+        //     color: white;
+        //     padding: 10px 20px;
+        //     border-radius: 5px;
+        //     z-index: 1000;
+        //     animation: fadeIn 0.3s ease-out;
+        // `;
+        //
+        // document.body.appendChild(errorDiv);
+        //
+        // setTimeout(() => {
+        //     errorDiv.remove();
+        // }, 3000);
     },
     
-    // 显示成功消息
+    // 显示成功消息 - 弹窗已禁用，避免移动端遮挡输入框
     showSuccess(message) {
         Utils.showNotification(message, 'success');
 
-        // 如果是多行消息，也显示一个更明显的成功提示
-        if (message.includes('\n')) {
-            const successDiv = document.createElement('div');
-            successDiv.className = 'success-message';
-            successDiv.innerHTML = message.replace(/\n/g, '<br>');
-            successDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #07c160;
-                color: white;
-                padding: 15px 25px;
-                border-radius: 8px;
-                z-index: 1000;
-                animation: fadeIn 0.3s ease-out;
-                max-width: 400px;
-                text-align: center;
-                box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
-                font-size: 14px;
-                line-height: 1.5;
-            `;
+        // 成功弹窗已禁用，避免遮挡输入框，只在控制台输出
+        console.log('UI成功:', message);
 
-            document.body.appendChild(successDiv);
-
-            setTimeout(() => {
-                successDiv.remove();
-            }, 5000);
-        }
+        // if (message.includes('\n')) {
+        //     const successDiv = document.createElement('div');
+        //     successDiv.className = 'success-message';
+        //     successDiv.innerHTML = message.replace(/\n/g, '<br>');
+        //     successDiv.style.cssText = `
+        //         position: fixed;
+        //         top: 20px;
+        //         left: 50%;
+        //         transform: translateX(-50%);
+        //         background: #07c160;
+        //         color: white;
+        //         padding: 15px 25px;
+        //         border-radius: 8px;
+        //         z-index: 1000;
+        //         animation: fadeIn 0.3s ease-out;
+        //         max-width: 400px;
+        //         text-align: center;
+        //         box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+        //         font-size: 14px;
+        //         line-height: 1.5;
+        //     `;
+        //
+        //     document.body.appendChild(successDiv);
+        //
+        //     setTimeout(() => {
+        //         successDiv.remove();
+        //     }, 5000);
+        // }
     },
 
     // 设置连接状态
@@ -550,12 +554,12 @@ const UI = {
             statusElement.className = `connection-status ${isOnline ? 'online' : 'offline'}`;
         }
 
-        // 只有在真正断开连接时才显示离线提示，连接中状态不显示
-        if (status === 'disconnected' && navigator.onLine) {
-            Utils.showNotification('连接已断开，正在重连...', 'warning');
-        } else if (!navigator.onLine) {
-            Utils.showNotification('已切换到离线模式，部分功能可能受限', 'warning');
-        }
+        // 连接状态通知已禁用，避免移动端弹窗遮挡输入框
+        // if (status === 'disconnected' && navigator.onLine) {
+        //     Utils.showNotification('连接已断开，正在重连...', 'warning');
+        // } else if (!navigator.onLine) {
+        //     Utils.showNotification('已切换到离线模式，部分功能可能受限', 'warning');
+        // }
     },
 
     // 显示上传状态

@@ -580,7 +580,8 @@ const MessageHandler = {
         } else {
             UI.setConnectionStatus('disconnected');
             this.stopAutoRefresh();
-            UI.showError('网络连接已断开');
+            // 网络断开通知已禁用，避免移动端弹窗遮挡输入框
+            // UI.showError('网络连接已断开');
         }
     },
     
